@@ -15,8 +15,8 @@ ITEM_NAME_TO_ID = {
     "Explore Rune": 4,
     "Spider Rune": 5,
     "Homunculus Rune": 6,
-    "Dash": 7,
-    "High Jump": 8,
+    "Dash": 7, # For Richter Mode
+    "High Jump": 8, # For Richter Mode
     "Flask 1": 9,
     "Flask 2": 10,
     "Flask 3": 11,
@@ -38,11 +38,23 @@ ITEM_NAME_TO_ID = {
     "Advanced Forge": 27,
     "Recycling Tubes": 28,
     "Backpack": 29,
-    "Training Room": 30
+    "Training Room": 30,
+    "Assassin's Dagger Blueprint": 31,
+    "Broadsword Blueprint": 32,
+    "Cursed Sword Blueprint": 33,
+    "Impaler Blueprint": 34,
+    "Symmetrical Lance Blueprint": 35,
+    "Spartan Sandals Blueprint": 36,
+    "Flint Blueprint": 37,
+    "Tentacle Blueprint": 38,
+    "Vorpan Blueprint": 39,
+    "Crowbar Blueprint": 40,
+    "Iron Staff Blueprint": 41,
+    "Machete and Pistol Blueprint": 42,
+    "Hard Light Sword Blueprint": 43
 }
 
-# Items should have a defined default classification.
-# In our case, we will make a dictionary from item name to classification.
+# Item Classification
 DEFAULT_ITEM_CLASSIFICATIONS = {
     "Vine Rune": ItemClassification.progression,
     "Teleport Rune": ItemClassification.progression,
@@ -50,30 +62,30 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Explore Rune": ItemClassification.useful,
     "Spider Rune": ItemClassification.progression,
     "Homunculus Rune": ItemClassification.progression,
-    "Dash": 7,
-    "High Jump": 8,
-    "Flask 1": 9,
-    "Flask 2": 10,
-    "Flask 3": 11,
-    "Flask 4": 12,
-    "Reserve 1": 13,
-    "Reserve 2": 14,
-    "Reserve 3": 15,
-    "Reserve 4": 16,
-    "Reserve 5": 17,
-    "Recycling 1": 18,
-    "Recycling 2": 19,
-    "Random Melee Weapon": 20,
-    "Random Starter Bow": 21,
-    "Random Starter Shield": 22,
-    "Restock": 23,
-    "Specialist's Showroom": 24,
-    "Hunter's Mirror": 25,
-    "Merchandise Categories": 26,
-    "Advanced Forge": 27,
-    "Recycling Tubes": 28,
-    "Backpack": 29,
-    "Training Room": 30
+    "Dash": ItemClassification.progression, # For Richter Mode
+    "High Jump": ItemClassification.progression, # For Richter Mode
+    "Flask 1": ItemClassification.useful,
+    "Flask 2": ItemClassification.useful,
+    "Flask 3": ItemClassification.useful,
+    "Flask 4": ItemClassification.useful,
+    "Reserve 1": ItemClassification.useful,
+    "Reserve 2": ItemClassification.useful,
+    "Reserve 3": ItemClassification.useful,
+    "Reserve 4": ItemClassification.useful,
+    "Reserve 5": ItemClassification.useful,
+    "Recycling 1": ItemClassification.useful,
+    "Recycling 2": ItemClassification.useful,
+    "Random Melee Weapon": ItemClassification.useful,
+    "Random Starter Bow": ItemClassification.useful,
+    "Random Starter Shield": ItemClassification.useful,
+    "Restock": ItemClassification.useful,
+    "Specialist's Showroom": ItemClassification.useful,
+    "Hunter's Mirror": ItemClassification.useful,
+    "Merchandise Categories": ItemClassification.useful,
+    "Advanced Forge": ItemClassification.useful,
+    "Recycling Tubes": ItemClassification.useful,
+    "Backpack": ItemClassification.useful,
+    "Training Room": ItemClassification.useful
 }
 
 
@@ -85,7 +97,7 @@ class DeadCellItem(Item):
 # Ontop of our regular itempool, our world must be able to create arbitrary amounts of filler as requested by core.
 # To do this, it must define a function called world.get_filler_item_name(), which we will define in world.py later.
 # For now, let's make a function that returns the name of a random filler item here in items.py.
-def get_random_filler_item_name(world: APQuestWorld) -> str:
+def get_random_filler_item_name(world: DeadCellsAPWorld) -> str:
     # APQuest has an option called "trap_chance".
     # This is the percentage chance that each filler item is a Math Trap instead of a Confetti Cannon.
     # For this purpose, we need to use a random generator.
@@ -98,7 +110,7 @@ def get_random_filler_item_name(world: APQuestWorld) -> str:
     return "Confetti Cannon"
 
 
-def create_item_with_correct_classification(world: APQuestWorld, name: str) -> APQuestItem:
+def create_item_with_correct_classification(world: DeadCellsAPWorld, name: str) -> DeadCellItem:
     # Our world class must have a create_item() function that can create any of our items by name at any time.
     # So, we make this helper function that creates the item by name with the correct classification.
     # Note: This function's content could just be the contents of world.create_item in world.py directly,
@@ -110,11 +122,11 @@ def create_item_with_correct_classification(world: APQuestWorld, name: str) -> A
     if name == "Health Upgrade" and world.options.hard_mode:
         classification = ItemClassification.progression
 
-    return APQuestItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
+    return DeadCellItem(name, classification, ITEM_NAME_TO_ID[name], world.player)
 
 
 # With those two helper functions defined, let's now get to actually creating and submitting our itempool.
-def create_all_items(world: APQuestWorld) -> None:
+def create_all_items(world: DeadCellsAPWorld) -> None:
     # This is the function in which we will create all the items that this world submits to the multiworld item pool.
     # There must be exactly as many items as there are locations.
     # In our case, there are either six or seven locations.
