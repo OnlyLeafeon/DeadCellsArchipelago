@@ -20,14 +20,6 @@ namespace DeadCellsArchipelago {
             Log.Information($"=== Blueprint picked up: {k} ===");
             // TODO: send check to Archipelago
             SendBlueprintCheck(k.ToString());
-            if (SAVED_DATA != null)
-            {
-                SAVED_DATA.SaveCheckSent(k.ToString());
-            } else
-            {
-                Log.Error($"=== No save loaded for BlueprintManager ===");
-            }
-
             return true;
         }
 
@@ -49,17 +41,9 @@ namespace DeadCellsArchipelago {
         }
 
         //hasRevealedItem allow or not the blueprint to spawn
-        public static bool ReallyHasBlueprint(dc.tool.Hook_ItemMetaManager.orig_hasRevealedItem orig, dc.tool.ItemMetaManager self, dc.String k)
+        public static bool ReallyHasBlueprint(Hook_ItemMetaManager.orig_hasRevealedItem orig, ItemMetaManager self, dc.String k)
         {
-            if (ITEMS != null && ITEMS.TryGetValue(k.ToString(), out ItemData? itemData) && itemData.IsBaseItem) //todo: may check that later, but if true, add each time the blueprint to the collector
-            {
-                return false;
-            }
-            else if (SAVED_DATA != null && SAVED_DATA.IsCheckSent(k.ToString())) //Drop the blueprint only when he is not in the saved checklist
-            {
-                return true;
-            }
-            return false;
+            return SAVED_DATA != null && SAVED_DATA.IsCheckSent(k.ToString()); //Drop the blueprint only when he is not in the saved checklist
         }
 
         public static void SendBlueprintCheck(string blueprintId)
@@ -67,10 +51,17 @@ namespace DeadCellsArchipelago {
             if (ARCHIPELAGO != null)
             {
                 ARCHIPELAGO.SendCheck($"Blueprint: {blueprintId}");
+                if (SAVED_DATA != null)
+                {
+                    SAVED_DATA.SaveCheckSent(blueprintId);
+                } else
+                {
+                    Log.Error("=== Couldn't save check ===");
+                }
             }
             else
             {
-                Log.Error($"=== Error while sending blueprint check ===");
+                Log.Error("=== Error while sending blueprint check ===");
             }
         }
     }

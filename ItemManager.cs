@@ -1,7 +1,11 @@
 
+using dc;
 using dc.en;
 using dc.en.inter;
+using dc.hl.types;
+using dc.pr;
 using dc.tool;
+using dc.ui.hud;
 using ModCore.Utilities;
 using Serilog;
 using static dc.tool.InventItemKind;
@@ -14,11 +18,12 @@ namespace DeadCellsArchipelago {
         public static ArchipelagoManager? ARCHIPELAGO { get; set; }
         public static Dictionary<string, ItemData>? ITEMS { get; set; }
         public static ItemMetaManager? ITEM_META_MANAGER { get; set; }
+        public static User? USER { get; set; }
 
         //Drop the item with the id @itemName to the player position
         //Warning: all items can be dropped, but if it has no pick up implementation, it will crash the game when you take it.
         //Same for using Weapon or Actives without the said uses implemented.
-        public static void GiveItemToPlayer(string itemName)
+        public static void DropItemToPlayer(string itemName)
         {
             if (HERO != null) {
                 try
@@ -59,6 +64,33 @@ namespace DeadCellsArchipelago {
             }
         }
 
+        public static void GiveItemToPlayer(string itemName)
+        {
+            if (HERO != null) {
+                try
+                {
+                    InventItem? inventItem = CreateInventItemById(itemName);
+
+                    if (inventItem != null) {
+                        Log.Information($"=== Item {itemName} Created ===");
+                        HERO.inventory.add(inventItem);
+                    } else
+                    {
+                        Log.Error($"=== Item {itemName} could not be created ===");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"=== Error: {ex.Message} ===");
+                    Log.Error($"Stack trace: {ex.StackTrace}");
+                }
+            }
+            else
+            {
+                Log.Error("=== Cannot log inventory, hero is null ===");
+            }
+        }
+
         private static InventItem? CreateInventItemById(string itemName)
         {
 
@@ -70,7 +102,7 @@ namespace DeadCellsArchipelago {
 
             if (ITEMS.TryGetValue(itemName, out ItemData? itemData))
             {
-                Console.WriteLine($"=== Item {itemName} exists with category {itemData.Category} ===");
+                Console.WriteLine($"=== Item {itemName} exists with category {itemData.category} ===");
             }
             else
             {
@@ -80,70 +112,58 @@ namespace DeadCellsArchipelago {
 
             InventItem? inventItem = null;
 
-            switch (itemData.Category)
+            switch (itemData.category)
             {
                 case "DeployedTrap":
                 case "Grenade":
                 case "SideKick":
                 case "Power":
-                    Log.Information("0");
                     inventItem = new InventItem(new InventItemKind.Active(itemName.AsHaxeString()));
                     break;
 
                 case "Melee":
                 case "Ranged":
                 case "Shield":
-                    Log.Information("1");
                     inventItem = new InventItem(new InventItemKind.Weapon(itemName.AsHaxeString()));
                     break;
 
                 case "Talisman":
-                    Log.Information("2");
                     inventItem = new InventItem(new Talisman(itemName.AsHaxeString()));
                     break;
 
                 case "BagItem":
-                    Log.Information("3");
                     inventItem = new InventItem(new BagItem(itemName.AsHaxeString()));
                     break;
 
                 case "Meta":
-                    Log.Information("4");
                     inventItem = new InventItem(new Meta(itemName.AsHaxeString()));
                     break;
 
                 case "Consumable":
-                    Log.Information("5");
                     inventItem = new InventItem(new Consumable(itemName.AsHaxeString()));
                     break;
 
                 case "PreciousLoot":
-                    Log.Information("6");
                     inventItem = new InventItem(new PreciousLoot(itemName.AsHaxeString()));
                     break;
 
                 case "Perk":
-                    Log.Information("7");
                     inventItem = new InventItem(new Perk(itemName.AsHaxeString()));
                     break;
 
                 case "Skin":
-                    Log.Information("8");
                     inventItem = new InventItem(new Skin(itemName.AsHaxeString()));
                     break;
 
                 case "Head":
-                    Log.Information("9");
                     inventItem = new InventItem(new Head(itemName.AsHaxeString()));
                     break;
 
                 case "Aspect":
-                    Log.Information("10");
                     inventItem = new InventItem(new Aspect(itemName.AsHaxeString()));
                     break;
 
                 case "BossRushStatueUnlock":
-                    Log.Information("11");
                     inventItem = new InventItem(new BossRushStatueUnlock(itemName.AsHaxeString()));
                     break;
             }
@@ -181,8 +201,30 @@ namespace DeadCellsArchipelago {
 
         public static void ReallyRevealAllBaseItems(Hook_ItemMetaManager.orig_revealAllBaseItems orig, ItemMetaManager self)
         {
-            Log.Warning("=== This method was called ===");
-            //orig(self);
+            //leaving this blank remove base items in collector's shop
+        }
+
+        public static void GiveItemFromArchipelago(string itemName)
+        {
+            if (ITEM_META_MANAGER != null) {
+                switch (itemName)
+                {
+                    case "LadderKey":
+                    case "TeleportKey":
+                    case "ScoringKey":
+                    case "CustomKey":
+                    case "BreakableGroundKey":
+                    case "WallJumpKey":
+                    case "HomKey":
+                    case "ExploKey":
+                        ITEM_META_MANAGER.addPermanentItem(itemName.AsHaxeString());
+                        GiveItemToPlayer(itemName);
+                        RuneManager.ActivateMinimapTracking(itemName);
+                        return;
+
+                }
+                BlueprintManager.UnlockBlueprint(itemName);
+            }
         }
     }
 }

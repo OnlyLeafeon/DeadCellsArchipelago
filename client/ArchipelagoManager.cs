@@ -3,6 +3,7 @@ using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
 using Archipelago.MultiClient.Net.Packets;
+using ModCore.Utilities;
 using Serilog;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +95,8 @@ namespace DeadCellsArchipelago
                 
                 // Simulate a blueprint send from server
                 Log.Information($"=== [MOCK] Simulate item send ===");
-                BlueprintManager.UnlockBlueprint("Flask1");
+                ItemManager.GiveItemFromArchipelago("Flask1");
+                ItemManager.GiveItemFromArchipelago("BreakableGroundKey");//LadderKey//TeleportKey
                 return;
             }
 

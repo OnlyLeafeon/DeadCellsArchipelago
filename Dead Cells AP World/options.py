@@ -8,7 +8,7 @@ class MaxBossCells(Choice):
     option_3bc = 3
     option_4bc = 4
     option_5bc = 5
-    default = 0
+    default = 2
 
 class RiseOfTheGiant(Toggle):
     display_name = "Rise of the Giant DLC"

@@ -35,15 +35,35 @@ namespace DeadCellsArchipelago {
         private static void OnBossKilled(string bossName)
         {
             Log.Information($"=== {bossName} killed! TODO: send check to Archipelago ===");
-            // TODO: send check to Archipelago
-
+            if (SAVED_DATA != null && !SAVED_DATA.IsCheckSent(bossName)){
+                SendBossCheck(bossName);
+            }
             // Test give item to player if concierge
             if(bossName == "The Concierge")
             {
                 for (int i = 0; i < 20; i++)
                 {
-                    GiveItemToPlayer("AnyUp");
+                    DropItemToPlayer("AllUp");
                 }
+            }
+        }
+
+        public static void SendBossCheck(string bossName)
+        {
+            if (ARCHIPELAGO != null)
+            {
+                ARCHIPELAGO.SendCheck($"Boss: {bossName}");
+                if (SAVED_DATA != null)
+                {
+                    SAVED_DATA.SaveCheckSent(bossName);
+                } else
+                {
+                    Log.Error("=== Couldn't save check ===");
+                }
+            }
+            else
+            {
+                Log.Error("=== Error while sending Boss check ===");
             }
         }
     }

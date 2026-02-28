@@ -7,6 +7,8 @@ using Serilog;
 using static DeadCellsArchipelago.BossManager;
 using static DeadCellsArchipelago.ItemManager;
 using static DeadCellsArchipelago.BlueprintManager;
+using static DeadCellsArchipelago.RuneManager;
+using static DeadCellsArchipelago.RoomManager;
 using dc.en.mob;
 using dc._Data;
 using dc.pr;
@@ -17,6 +19,15 @@ using Newtonsoft.Json;
 using System.Text.Json;
 using dc;
 using dc.hl.types;
+using dc.cine;
+using dc.hxd;
+using dc.tool.hero;
+using HaxeProxy.Runtime;
+using dc.en.inter;
+using dc.steam.ugc;
+using Archipelago.MultiClient.Net.Models;
+using dc.tool.utils;
+using dc.level.@struct;
 
 
 namespace DeadCellsArchipelago{
@@ -35,12 +46,18 @@ namespace DeadCellsArchipelago{
             InitializeBossHooks();
 
             Hook_Hero.init += OnHeroInit;
-
             Hook_Hero.pickBlueprint += OnBlueprintPicked;
-            Hook_ItemMetaManager.hasRevealedItem += ReallyHasBlueprint;
+            Hook_Hero.applyItemPickEffect += OnApplyItemPickEffect; //used for runes
+
+            Hook_ItemMetaManager.hasRevealedItem += ReallyHasBlueprint; //might check rune
             Hook_ItemMetaManager.revealAllBaseItems += ReallyRevealAllBaseItems;
-            Hook_LevelGen.generate += OnLevelGenGenerate;
+            Hook_ItemMetaManager.unlockItem += OnUnlockItem;
+            //hasPermanentItem (5559) is used on too many things. should check on what call it later for bsc
+            Hook_ItemMetaManager.hasPermanentItem += ReallyHasPermanentItem;
             
+            Hook_LevelGen.generate += OnLevelGenGenerate;
+
+            InitializeRoomHooks();
 
             archipelago.EnableMockMode();
             // TODO: Get infos from file or ui
@@ -51,6 +68,14 @@ namespace DeadCellsArchipelago{
             ITEMS = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, ItemData>>(json);
 
             Log.Information("=== Archipelago Mod loaded ! ===");
+        }
+
+        private bool OnUnlockItem(Hook_ItemMetaManager.orig_unlockItem orig, ItemMetaManager self, dc.String k)//utilisé pour les items comme la poelle 
+        {
+            Log.Warning($"=== This method was called for {k} in on unlock ===");
+            bool res = orig(self, k);
+            Log.Warning("=== End call unlock ===");
+            return res;
         }
 
         private void OnHeroInit(Hook_Hero.orig_init orig, Hero self)
@@ -76,6 +101,7 @@ namespace DeadCellsArchipelago{
             if (data != null)
             {
                 ITEM_META_MANAGER = data.itemMeta;
+                USER = data;
 
                 Log.Information($"=== Chargement de la save slot {data.userId} ===");
                 
@@ -129,7 +155,7 @@ namespace DeadCellsArchipelago{
             return System.IO.Path.Combine(saveDir, $"archipelagoUserId_{slot}.json");
         }
 
-        private ArrayObj OnLevelGenGenerate(Hook_LevelGen.orig_generate orig, LevelGen self, User user, int seed, Hashlink.Virtuals.virtual_baseLootLevel_biome_bonusTripleScrollAfterBC_cellBonus_dlc_doubleUps_eliteRoomChance_eliteWanderChance_flagsProps_group_icon_id_index_loreDescriptions_mapDepth_minGold_mobDensity_mobs_name_nextLevels_parallax_props_quarterUpsBC3_quarterUpsBC4_specificLoots_specificSubBiome_transitionTo_tripleUps_worldDepth_ ldat, HaxeProxy.Runtime.Ref<bool> resetCount)
+        private ArrayObj OnLevelGenGenerate(Hook_LevelGen.orig_generate orig, LevelGen self, User user, int seed, Hashlink.Virtuals.virtual_baseLootLevel_biome_bonusTripleScrollAfterBC_cellBonus_dlc_doubleUps_eliteRoomChance_eliteWanderChance_flagsProps_group_icon_id_index_loreDescriptions_mapDepth_minGold_mobDensity_mobs_name_nextLevels_parallax_props_quarterUpsBC3_quarterUpsBC4_specificLoots_specificSubBiome_transitionTo_tripleUps_worldDepth_ ldat, Ref<bool> resetCount)
         {
             ITEM_META_MANAGER = user.itemMeta;
             var result = orig(self, user, seed, ldat, resetCount);
