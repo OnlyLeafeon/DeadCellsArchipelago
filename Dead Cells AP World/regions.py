@@ -48,7 +48,7 @@ def create_all_regions(world: DeadCellsAPWorld) -> None:
 
     # Sixth Stages
     high_peak_castle = Region("High Peak Castle", world.player, world.multiworld)
-    dereliict_distillery = Region("Derelict Distillery", world.player, world.multiworld)
+    derelict_distillery = Region("Derelict Distillery", world.player, world.multiworld)
 
     # Third Bosses
     throne_room = Region("Throne Room", world.player, world.multiworld)
@@ -62,8 +62,8 @@ def create_all_regions(world: DeadCellsAPWorld) -> None:
         stilt_village, slumber_sanctuary, graveyard,
         clock_tower, forgotten_sepulcher,
         clock_room,
-        high_peak_castle, dereliict_distillery,
-        throne_room,]
+        high_peak_castle, derelict_distillery,
+        throne_room]
 
     # Adds regions to multiworld
     world.multiworld.regions += regions
