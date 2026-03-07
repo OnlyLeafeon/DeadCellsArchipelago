@@ -9,12 +9,14 @@ if TYPE_CHECKING:
 
 # All Item IDs
 ITEM_NAME_TO_ID = {
+    # Runes
     "Vine Rune": 1,
     "Teleport Rune": 2,
     "Ram Rune": 3,
     "Explore Rune": 4,
     "Spider Rune": 5,
     "Homunculus Rune": 6,
+    # Upgrades
     "Dash": 7, # For Richter Mode
     "High Jump": 8, # For Richter Mode
     "Flask 1": 9,
