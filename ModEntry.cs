@@ -10,6 +10,7 @@ using static DeadCellsArchipelago.BlueprintManager;
 using static DeadCellsArchipelago.RuneManager;
 using static DeadCellsArchipelago.RoomManager;
 using static DeadCellsArchipelago.PerkManager;
+using static DeadCellsArchipelago.ItemQueue;
 using dc.en.mob;
 using dc._Data;
 using dc.pr;
@@ -33,13 +34,15 @@ using dc.en.inter.door;
 using dc.level.lore;
 using dc.ui;
 using Hashlink.Virtuals;
+using ModCore.Events.Interfaces.Game.Hero;
 
 
 namespace DeadCellsArchipelago{
     //E:\SteamLibrary\steamapps\common\Dead Cells\coremod\core\host\startup -> path to launch DeadCellsModding.exe
     public class ModEntry(ModInfo info) : ModBase(info), 
         IOnAfterLoadingSave,
-        IOnBeforeSavingSave
+        IOnBeforeSavingSave,
+        IOnHeroUpdate
     {
         private ArchipelagoManager archipelago = new();
         private ArchipelagoSaveData savedData = new();
@@ -73,9 +76,9 @@ namespace DeadCellsArchipelago{
             //LevelGen
             Hook_LevelGen.generate += OnGenerate;
 
-            archipelago.EnableMockMode();
+            //archipelago.EnableMockMode();
             // TODO: Get infos from file or ui
-            //archipelago.Connect("localhost:38281", "Player1");
+            archipelago.Connect("localhost:38281", "TestPlayer");
             ARCHIPELAGO = archipelago;
 
             string json = System.IO.File.ReadAllText("./coremod/mods/DeadCellsArchipelago/itemsId-Category.json"); //the json should be placed next to the modinfo.json
@@ -101,6 +104,14 @@ namespace DeadCellsArchipelago{
             UnlockBlueprint("EvilSword");
             UnlockBlueprint("FastBow");
             UnlockBlueprint("BackStabber");*/
+        }
+
+        public void OnHeroUpdate(double dt)
+        {
+            if (HERO != null)
+            {    
+                GiveItemInQueue();
+            }
         }
 
         public void OnAfterLoadingSave(User data)

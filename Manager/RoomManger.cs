@@ -31,7 +31,8 @@ namespace DeadCellsArchipelago {
         {
             if(USER != null)
             {   //allow the player to open the mutation door in collector's transition
-                if (USER.game.curLevel.map.getRoomAt(self.cx, self.cy).rTemplate.ToString() == "PerkShop")
+            Log.Warning($"=== porte en {USER.game.curLevel.map.getRoomAt(self.cx, self.cy).rTemplate} ===");
+                if (USER.game.curLevel.map.getRoomAt(self.cx, self.cy).rTemplate.ToString() == "PerkShop" || USER.game.curLevel.map.getRoomAt(self.cx, self.cy).rTemplate.ToString() == "DookuArenaPerkShop")
                 {
                     self.openFast(self.cx - by.cx >= 0 ? 1 : -1, null);
                     return;
@@ -44,7 +45,7 @@ namespace DeadCellsArchipelago {
         {   //without this, the mutation door in collector's transition will close automatically
             if(USER != null)
             {
-                if (USER.game.curLevel.map.getRoomAt(self.cx, self.cy).rTemplate.ToString() == "PerkShop")
+                if (USER.game.curLevel.map.getRoomAt(self.cx, self.cy).rTemplate.ToString() == "PerkShop" || USER.game.curLevel.map.getRoomAt(self.cx, self.cy).rTemplate.ToString() == "DookuArenaPerkShop")
                 {
                     return;
                 }
@@ -56,17 +57,17 @@ namespace DeadCellsArchipelago {
         public static ArrayObj OnGenerate(Hook_LevelGen.orig_generate orig, LevelGen self, User user, int seed, virtual_baseLootLevel_biome_bonusTripleScrollAfterBC_cellBonus_dlc_doubleUps_eliteRoomChance_eliteWanderChance_flagsProps_group_icon_id_index_loreDescriptions_mapDepth_minGold_mobDensity_mobs_name_nextLevels_parallax_props_quarterUpsBC3_quarterUpsBC4_specificLoots_specificSubBiome_transitionTo_tripleUps_worldDepth_ ldat, Ref<bool> resetCount)
         {
             Log.Warning($"=== start last level {lastLevel} ===");
-            if(lastLevel != null && SAVED_DATA != null && SAVED_DATA.IsCheckSent($"Ending_{ldat.id}"))
+            if(lastLevel != null && SAVED_DATA != null && !SAVED_DATA.IsCheckSent($"Ending_{ldat.id}"))
             {
-                   SendBiomeCheck(ldat.id.ToString(), "Ending");
+                   SendBiomeCheck(lastLevel + "_Exit", lastLevel);
                    Log.Warning("=== send end ===");
             }
 
             if(ldat.id.ToString().Substring(0, 2) != "T_")
             {
-                if(SAVED_DATA != null && SAVED_DATA.IsCheckSent($"Ending_{ldat.id}"))
+                if(SAVED_DATA != null && !SAVED_DATA.IsCheckSent($"Ending_{ldat.id}"))
                 {
-                    SendBiomeCheck(ldat.id.ToString(), "Starting");
+                    SendBiomeCheck(ldat.id.ToString() + "_Enter", ldat.id.ToString());
                     Log.Warning("=== send start ===");
                 }
                 lastLevel = ldat.id.ToString();
@@ -82,11 +83,11 @@ namespace DeadCellsArchipelago {
             orig(self);
         }
 
-        public static void SendBiomeCheck(string biomeId, string biomeStatus)
+        public static void SendBiomeCheck(string locationId, string biomeId)
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck($"{biomeStatus}_{biomeId}", "Biome:");
+                ARCHIPELAGO.SendCheck(locationId, biomeId, "Biome:");
             }
             else
             {

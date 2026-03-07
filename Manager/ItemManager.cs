@@ -224,7 +224,7 @@ namespace DeadCellsArchipelago {
                         RuneManager.ActivateMinimapTracking(itemName);
                         return;
 
-                }//todo: 
+                }//todo: other kinds
                 BlueprintManager.UnlockBlueprint(itemName);
             }
         }
@@ -254,7 +254,7 @@ namespace DeadCellsArchipelago {
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck(itemId, "Item:");
+                ARCHIPELAGO.SendCheck("Item_" + itemId, itemId, "Item:");//todo
             }
             else
             {

@@ -12,22 +12,22 @@ namespace DeadCellsArchipelago {
         {
             Log.Information("=== Loading Boss Hooks... ===");
             // Hooking boss death events
-            Hook_Behemoth.onDie += (orig, self) => { orig(self); OnBossKilled("The Concierge"); };
-            Hook_Beholder.onDie += (orig, self) => { orig(self); OnBossKilled("Conjunctivius"); };
-            Hook_MamaTick.onDie += (orig, self) => { orig(self); OnBossKilled("Mama Tick"); };
-            Hook_Death.onDie += (orig, self) => { orig(self); OnBossKilled("Death"); }; //need to be tested
+            Hook_Behemoth.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_Beholder.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_MamaTick.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_Death.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); }; //need to be tested
 
-            Hook_TimeKeeper.onDie += (orig, self) => { orig(self); OnBossKilled("The Time Keeper"); };
-            Hook_Giant.onDie += (orig, self) => { orig(self); OnBossKilled("The Giant"); };
-            Hook_GardenerBoss.onDie += (orig, self) => { orig(self); OnBossKilled("Scarecrow"); };
+            Hook_TimeKeeper.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_Giant.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_GardenerBoss.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
 
-            Hook_KingsHand.onDie += (orig, self) => { orig(self); OnBossKilled("The Hand of the King"); };
-            Hook_Fx.servantChaseDefeat += (orig, self, e) => { orig(self, e); OnBossKilled("The Servants"); }; //need to be tested
-            Hook_Dooku.onDie += (orig, self) => { orig(self); OnBossKilled("Dracula"); }; //might not use it, dracula first form
+            Hook_KingsHand.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_Fx.servantChaseDefeat += (orig, self, e) => { orig(self, e); OnBossKilled("TODO : servants "); }; //need to be tested
+            Hook_Dooku.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); }; //might not use it, dracula first form
 
-            Hook_Queen.onDie += (orig, self) => { orig(self); OnBossKilled("The Queen"); };
-            Hook_DookuBeast.onDie += (orig, self) => { orig(self); OnBossKilled("Dracula - Final Form"); };
-            Hook_Collector.onDie += (orig, self) => { orig(self); OnBossKilled("The Collector"); };
+            Hook_Queen.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_DookuBeast.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
+            Hook_Collector.onDie += (orig, self) => { orig(self); OnBossKilled(self._infos.id.ToString()); };
             
             Log.Information("=== Boss Hooks loaded ! ===");
         }
@@ -52,7 +52,7 @@ namespace DeadCellsArchipelago {
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck(bossName, "Boss:");
+                ARCHIPELAGO.SendCheck("Boss_" + bossName, bossName, "Boss:");
             }
             else
             {

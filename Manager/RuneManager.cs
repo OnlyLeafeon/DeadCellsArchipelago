@@ -14,6 +14,7 @@ namespace DeadCellsArchipelago {
 
         public static void OnApplyItemPickEffect(Hook_Hero.orig_applyItemPickEffect orig, Hero self, Entity from, InventItem i)
         {   //called each time the player take any item not blueprint
+            Log.Warning($"=== pick effect on {i._itemData.id} ===");
             switch (i._itemData.id.ToString())
             {
                 case "LadderKey":
@@ -24,6 +25,13 @@ namespace DeadCellsArchipelago {
                 case "WallJumpKey":
                 case "HomKey":
                 case "ExploKey":
+                    SendRuneCheck(i._itemData.id.ToString());
+                    break;
+                case "BossRune1":
+                case "BossRune2":
+                case "BossRune3":
+                case "BossRune4":
+                case "BossRune5":
                     SendRuneCheck(i._itemData.id.ToString());
                     break;
                 default:
@@ -70,7 +78,7 @@ namespace DeadCellsArchipelago {
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck(runeId, "Rune:");
+                ARCHIPELAGO.SendCheck("Rune_" + runeId, runeId, "Rune:");
             }
             else
             {
@@ -85,6 +93,18 @@ namespace DeadCellsArchipelago {
                 return orig(self, k);
             }
             return SAVED_DATA != null && SAVED_DATA.IsCheckSent(k.ToString()); //If we already have the rune check, don't generate the arena
+        }
+
+        public static void SendBscCheck(string bscId)
+        {
+            if (ARCHIPELAGO != null)
+            {
+                ARCHIPELAGO.SendCheck("BSC_" + bscId, bscId, "BSC:");
+            }
+            else
+            {
+                Log.Error("=== Error while sending BSC check ===");
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using static DeadCellsArchipelago.ItemManager;
+using static DeadCellsArchipelago.ItemQueue;
 
 namespace DeadCellsArchipelago
 {
@@ -54,7 +55,7 @@ namespace DeadCellsArchipelago
                     "Dead Cells",           // Game name
                     _slotName,              // Slot name
                     ItemsHandlingFlags.AllItems,
-                    new Version(0, 1, 0),   // Mod version
+                    new Version(6, 3, 1),
                     password: _password
                 );
                 
@@ -89,7 +90,7 @@ namespace DeadCellsArchipelago
             }
         }
         
-        public void SendCheck(string locationName, string message)
+        public void SendCheck(string locationName, string internalId, string message)
         {
             if (_mockMode) //log check when we are on test mod
             {
@@ -116,9 +117,21 @@ namespace DeadCellsArchipelago
                 // Get localization id from name
                 var locationId = _session.Locations.GetLocationIdFromName("Dead Cells", locationName);
                 
+                if (locationId == -1)
+                {
+                    Log.Error($"=== Location not found: {locationName} ===");
+                    return;
+                }
+
+                if (_session.Locations.AllLocationsChecked.Contains(locationId))
+                {
+                    Log.Error($"=== Location already sent: {locationName} ===");
+                    return;
+                }
+
                 _session.Locations.CompleteLocationChecks(locationId);
-                Log.Information($"=== Check sent: {locationName} (ID: {locationId}) ===");
-                SaveChecks(locationName);
+                Log.Information($"=== Location sent: {locationName} (ID: {locationId}) ===");
+                SaveChecks(internalId);
             }
             catch (Exception ex)
             {
@@ -132,39 +145,26 @@ namespace DeadCellsArchipelago
             
             var receivedItems = _session.Items.AllItemsReceived;
             
-            Log.Information($"=== Synchronisation: {receivedItems.Count} items reçus ===");
+            Log.Information($"=== Synchronisation: {receivedItems.Count} items on server ===");
             
+            var countDifferent = 0;
             foreach (var item in receivedItems)
             {
-                ProcessReceivedItem(item);
+                if (SAVED_DATA != null && SAVED_DATA.IsItemRecieved(item.ItemName))
+                {
+                    AddItemToQueue(item.ItemName);
+                    countDifferent++;
+                }
             }
+            Log.Information($"=== Synchronisation ended with {countDifferent} new items ===");
         }
         
         private void OnItemReceived(ReceivedItemsHelper helper)
         {
             var item = helper.PeekItem();
-            ProcessReceivedItem(item);
+            AddItemToQueue(item.ItemName);
+            //ProcessReceivedItem(item);
             helper.DequeueItem();
-        }
-        
-        private void ProcessReceivedItem(ItemInfo item) //TODO: finish this method when the client works
-        {
-            if (_session == null) return;
-            
-            var itemName = item.ItemName;
-            Log.Information($"=== Item reçu d'Archipelago: {itemName} ===");
-            
-            // Donner l'item au joueur selon son type
-            if (itemName.StartsWith("Blueprint: "))
-            {
-                var blueprintId = itemName.Replace("Blueprint: ", "");
-                BlueprintManager.UnlockBlueprint(blueprintId);
-            }
-            else if (itemName.StartsWith("Scroll: "))
-            {
-                // TODO: gérer les parchemins
-            }
-            // Ajoute d'autres types d'items ici
         }
         
         private void OnError(Exception ex, string message)
@@ -178,11 +178,11 @@ namespace DeadCellsArchipelago
             Log.Warning($"=== Déconnecté d'Archipelago: {reason} ===");
         }
 
-        private void SaveChecks(string locationName)
+        private void SaveChecks(string internalId)
         {
             if (SAVED_DATA != null)
             {
-                SAVED_DATA.SaveCheckSent(locationName);
+                SAVED_DATA.SaveCheckSent(internalId);
             } else
             {
                 Log.Error("=== Couldn't save check ===");
