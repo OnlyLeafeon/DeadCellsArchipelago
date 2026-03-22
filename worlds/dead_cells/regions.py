@@ -180,7 +180,7 @@ TRANSITIONS = {
     ],
     "PrisonCourtyard": [
         {"to": "Ossuary",      "require": "TeleportKey"},
-        {"to": "PrisonRoof",   "require": None},
+        {"to": "PrisonRoof",   "require": "LadderKey"},
         {"to": "PrisonDepths", "require": "WallJumpKey"},
         {"to": "Swamp",        "require": None},
     ],
