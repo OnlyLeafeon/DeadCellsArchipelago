@@ -134,10 +134,12 @@ class DeadCellsWorld(World):
         _, classification, dlc = data
 
         #filter cosmetics if option if off
-        if not self.options.include_cosmetics:
+        if not self.options.include_cosmetics.value:
             cat = self._LOCATION_CATEGORY.get(data)
             if cat in COSMETIC_CATEGORIES:
                 return False
+            
+        return True
 
     def _item_enabled(self, item_id: str) -> bool:
         """Return True if this item should be included in the pool."""
@@ -149,7 +151,7 @@ class DeadCellsWorld(World):
             return False
 
         # Filter cosmetics if option is off
-        if not self.options.include_cosmetics:
+        if not self.options.include_cosmetics.value:
             cat = _ITEM_CATEGORY.get(data)
             if cat in COSMETIC_CATEGORIES:
                 return False
@@ -194,8 +196,12 @@ class DeadCellsWorld(World):
         trap_pct = self.options.trap_percentage.value / 100.0
 
         # Active locations (determines pool size)
-        active_locs = get_locations_for_bc(self.enabled_dlcs, bc)
-        active_locs = get_locations_for_bc(self.cosmetics, bc)
+        disabled_types = set()
+        if self.options.include_cosmetics.value == 0:
+            disabled_types.add("skin")
+            disabled_types.add("head")
+        print(f"[DC DEBUG] disabled_types: {(disabled_types)}")    
+        active_locs = get_locations_for_bc(self.enabled_dlcs, disabled_types, bc)
         pool_size = len(active_locs)
 
         # DEBUG
@@ -215,7 +221,8 @@ class DeadCellsWorld(World):
         print(f"[DC DEBUG] remaining for fillers/traps: {remaining}")
         filler_pool = [name for name, data in get_filler_items(self.enabled_dlcs).items() if self._item_enabled(name)]
         print(f"[DC DEBUG] filler_pool size: {len(filler_pool)}")
-        # END DEBUG
+        print(f"[DC DEBUG] option.include_cosmetics.value: {self.options.include_cosmetics.value}")
+        # END DEBUG 
 
         items_to_place: List[DeadCellsItem] = []
         

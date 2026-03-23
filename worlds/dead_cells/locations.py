@@ -2122,12 +2122,12 @@ LOCATION_TABLE: Dict[str, dict] = {
 def location_id(name: str) -> int:
     return BASE_ID + LOCATION_TABLE[name]["id"]
 
-def get_locations_for_dlcs(enabled_dlcs: Set[str]) -> Dict[str, dict]:
-    return {n: d for n, d in LOCATION_TABLE.items() if d["dlc"] == "" or d["dlc"] in enabled_dlcs}
+def get_locations_for_dlcs(enabled_dlcs: Set[str], disabled_types: Set[str]) -> Dict[str, dict]:
+    return {n: d for n, d in LOCATION_TABLE.items() if (d["dlc"] == "" or d["dlc"] in enabled_dlcs) and not d["type"] in disabled_types}
 
-def get_locations_for_bc(enabled_dlcs: Set[str], bc_level: int) -> Dict[str, dict]:
+def get_locations_for_bc(enabled_dlcs: Set[str], disabled_types: Set[str], bc_level: int) -> Dict[str, dict]:
     result = {}
-    for name, data in get_locations_for_dlcs(enabled_dlcs).items():
+    for name, data in get_locations_for_dlcs(enabled_dlcs, disabled_types).items():
         if "sources" in data:
             if any((s["dlc"]=="" or s["dlc"] in enabled_dlcs) and s["min_bc"]<=bc_level<=s["max_bc"] for s in data["sources"]):
                 result[name] = data
