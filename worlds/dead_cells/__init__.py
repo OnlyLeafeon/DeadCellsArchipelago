@@ -109,6 +109,7 @@ class DeadCellsWorld(World):
 
     # Populated in generate_early, used throughout
     enabled_dlcs: Set[str] = set()
+    cosmetics: set[str] = set()
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -126,6 +127,17 @@ class DeadCellsWorld(World):
         if self.options.dlc_return_to_castlevania:
             dlcs.add(DLC_PURPLE)
         return dlcs
+    
+    def _location_enabled(self, location_id: str) -> bool:
+        """Return True if this location should be included in the pool."""
+        data = LOCATION_TABLE[location_id]
+        _, classification, dlc = data
+
+        #filter cosmetics if option if off
+        if not self.options.include_cosmetics:
+            cat = self._LOCATION_CATEGORY.get(data)
+            if cat in COSMETIC_CATEGORIES:
+                return False
 
     def _item_enabled(self, item_id: str) -> bool:
         """Return True if this item should be included in the pool."""
@@ -138,12 +150,12 @@ class DeadCellsWorld(World):
 
         # Filter cosmetics if option is off
         if not self.options.include_cosmetics:
-            cat = _ITEM_CATEGORY.get(item_id, "")
+            cat = _ITEM_CATEGORY.get(data)
             if cat in COSMETIC_CATEGORIES:
                 return False
 
         # Filter base weapons if option is off
-        if not self.options.include_base_weapons:
+        if not self.options.include_base_weapons.value:
             if item_id in BASE_WEAPONS:
                 return False
 
@@ -183,6 +195,7 @@ class DeadCellsWorld(World):
 
         # Active locations (determines pool size)
         active_locs = get_locations_for_bc(self.enabled_dlcs, bc)
+        active_locs = get_locations_for_bc(self.cosmetics, bc)
         pool_size = len(active_locs)
 
         # DEBUG
@@ -239,12 +252,13 @@ class DeadCellsWorld(World):
                 
         for name in BASE_PERKS:
             items_to_place.append(self.create_item(name))
-        
-        for name in BASE_SKINS:
-            items_to_place.append(self.create_item(name))
-        
-        for name in BASE_HEADS:
-            items_to_place.append(self.create_item(name))
+
+        if not self.options.include_cosmetics:
+            for name in BASE_SKINS:
+                items_to_place.append(self.create_item(name))
+
+            for name in BASE_HEADS:
+                items_to_place.append(self.create_item(name))
 
         # ── Trim or pad to pool_size ─────────────────────────────────────────
         remaining = pool_size - len(items_to_place)
