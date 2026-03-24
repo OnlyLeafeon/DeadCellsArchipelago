@@ -8,6 +8,9 @@ using ModCore.Utilities;
 namespace DeadCellsArchipelago {
     public static class HeroManager
     {
+        public static string userWithSkillIssue = "";
+        public static bool deathLinkReceived = false;
+
         public static void OnHeroDie(Hook_Hero.orig_onDie orig, Hero self)
         {
             lastLevel = null;
@@ -30,7 +33,7 @@ namespace DeadCellsArchipelago {
             Log.Information("=== Hero initialized ! ===");
         }
 
-        public static void DieByDeathLink(string userWithSkillIssue)
+        public static void DieByDeathLink()
         {
             if(HERO != null && ARCHIPELAGO != null)
             {
@@ -44,6 +47,16 @@ namespace DeadCellsArchipelago {
                     bool useAltSound = false;
                     HERO.curse(ARCHIPELAGO.deathLinkEnabled, $"{userWithSkillIssue} died !".AsHaxeString(), new HaxeProxy.Runtime.Ref<bool>(ref hidePopup), new HaxeProxy.Runtime.Ref<bool>(ref useAltSound));
                 }
+                userWithSkillIssue = "";
+            }
+        }
+
+        public static void CheckDeathLink()
+        {
+            if(deathLinkReceived)
+            {
+                DieByDeathLink();
+                deathLinkReceived = false;
             }
         }
     }

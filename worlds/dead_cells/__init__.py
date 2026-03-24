@@ -320,7 +320,7 @@ class DeadCellsWorld(World):
         """
         return {
             "boss_cells":                self.options.boss_cells.value,
-            "death_link":                bool(self.options.death_link.value),
+            "death_link":                self.options.death_link.value,
             "dlc_rise_of_the_giant":     bool(self.options.dlc_rise_of_the_giant.value),
             "dlc_the_bad_seed":          bool(self.options.dlc_the_bad_seed.value),
             "dlc_fatal_falls":           bool(self.options.dlc_fatal_falls.value),

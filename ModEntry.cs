@@ -116,6 +116,7 @@ namespace DeadCellsArchipelago{
             if (HERO != null && HERO.awake)
             {    
                 GiveItemInQueue();
+                CheckDeathLink();
             }
         }
 
