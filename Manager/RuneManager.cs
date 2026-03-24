@@ -88,10 +88,10 @@ namespace DeadCellsArchipelago {
 
         public static bool ReallyHasPermanentItem(Hook_ItemMetaManager.orig_hasPermanentItem orig, ItemMetaManager self, dc.String k)
         {
-            if(k.ToString() != "WallJumpKey" && k.ToString() != "BackpackUnlock" && k.ToString() != "ExploKey")
+            /*if(k.ToString() != "WallJumpKey" && k.ToString() != "BackpackUnlock" && k.ToString() != "ExploKey")
             {
                 Log.Error($"=== rune {k} {useOriginalHasPermanentItem} {SAVED_DATA != null && SAVED_DATA.IsCheckSent(k.ToString())}===");
-            }
+            }*/
             if (useOriginalHasPermanentItem) //this flag should change to false only when generating rooms, to have rune arena
             {
                 return orig(self, k);

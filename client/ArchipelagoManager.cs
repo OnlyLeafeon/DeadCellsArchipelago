@@ -1,4 +1,5 @@
 using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Models;
@@ -10,12 +11,14 @@ using System.Linq;
 
 using static DeadCellsArchipelago.ItemManager;
 using static DeadCellsArchipelago.ItemQueue;
+using static DeadCellsArchipelago.HeroManager;
 
 namespace DeadCellsArchipelago
 {
     public class ArchipelagoManager
     {
         private ArchipelagoSession? _session;
+        private DeathLinkService? deathLinkService;
         private bool _isConnected;
         
         // Configurate connection
@@ -23,7 +26,10 @@ namespace DeadCellsArchipelago
         private string _slotName = "";
         private string? _password = null;
         private bool _mockMode = false;
+
+        //options
         public int bscOption;
+        public int deathLinkEnabled;
 
         public void EnableMockMode() //used only for tests
         {
@@ -68,6 +74,14 @@ namespace DeadCellsArchipelago
                     var slotData = success.SlotData;
 
                     bscOption = Convert.ToInt32(slotData["boss_cells"]);
+                    deathLinkEnabled = Convert.ToInt32(slotData["death_link"]);
+
+                    if (deathLinkEnabled >= 0)
+                    {
+                        deathLinkService = _session.CreateDeathLinkService();
+                        deathLinkService.EnableDeathLink();
+                        deathLinkService.OnDeathLinkReceived += OnDeathLinkReceived;
+                    }
 
                     // Get every items received
                     SyncReceivedItems();
@@ -203,6 +217,22 @@ namespace DeadCellsArchipelago
                 Status = ArchipelagoClientState.ClientGoal
             };
             _session.Socket.SendPacket(statusUpdate);
+        }
+
+        private void OnDeathLinkReceived(DeathLink deathLink)
+        {
+            DieByDeathLink(deathLink.Source);
+        }
+
+        public void SendDeathLink(string message = "")
+        {
+            if(message == "")
+            {
+                message = $"{_slotName} died in Dead Cells";
+            }
+            if(deathLinkService != null && _session != null) {
+                deathLinkService.SendDeathLink(new DeathLink(_slotName, message));
+            }
         }
     }
 }

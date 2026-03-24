@@ -113,7 +113,7 @@ namespace DeadCellsArchipelago{
 
         public void OnHeroUpdate(double dt)
         {
-            if (HERO != null)
+            if (HERO != null && HERO.awake)
             {    
                 GiveItemInQueue();
             }

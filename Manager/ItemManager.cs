@@ -120,8 +120,16 @@ namespace DeadCellsArchipelago {
             {
                 if(item.id.ToString() == itemName)
                 {
-                    group = item.group;
-                    break;
+                    var match = Regex.Match(item.ToString(), @"id\s*:\s*(\w+)");
+                    if (match.Success && match.Groups[1].Value == itemName)
+                    {
+                        var matchGroup = Regex.Match(item.ToString(), @"group\s*:\s*(\d+)");
+                        if (matchGroup.Success)
+                        {
+                            group = int.Parse(matchGroup.Groups[1].Value);
+                            break;
+                        }
+                    }
                 }
             }
             if (group == -1)
