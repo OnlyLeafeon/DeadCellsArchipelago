@@ -119,12 +119,12 @@ class IncludeCosmetics(Toggle):
     extra filler slots are filled with consumables and gems.
     """
     display_name = "Include Cosmetics in Pool"
-    default = 1
+    default = 0
 
 
 class IncludeBaseWeapons(Toggle):
     """
-    Include base-game weapons and skills that are available from the start
+    Include base-game weapons that are available from the start
     without any blueprint (e.g. Quick Sword, Broad Sword, Dual Daggers).
     When disabled, these items are removed from the pool, making the
     randomizer more focused on blueprint unlocks.
@@ -134,16 +134,34 @@ class IncludeBaseWeapons(Toggle):
     default = 1
 
 
+class IncludeBaseMutations(Toggle):
+    """
+    Include base-game mutations that are available from the start
+    without any blueprint (e.g. Combo, Support, Necromancy).
+    When disabled, these items are removed from the pool, making the
+    randomizer more focused on blueprint unlocks.
+    When enabled, they are added as useful filler items.
+    """
+    display_name = "Include Starting Mutations in Pool"
+    default = 1
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Multiplayer
 # ─────────────────────────────────────────────────────────────────────────────
 
-class DeadCellsDeathLink(DeathLink):
+class DeadCellsDeathLink(Range):
     """
     When enabled, dying in Dead Cells sends a death signal to all other
     players with Death Link enabled in the multiworld session.
-    Receiving a death signal will kill your current run.
+    Receiving a death signal will kill your current run when set to 0.
+    With a positve value, give you that amount in curses instead of killing your run
+    Negative values disable this option.
     """
+    display_name = "Death/Curses Link"
+    range_start = -1
+    range_end = 500
+    default = -1
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -166,6 +184,7 @@ class DeadCellsOptions(PerGameCommonOptions):
     trap_percentage:       TrapPercentage
     include_cosmetics:     IncludeCosmetics
     include_base_weapons:  IncludeBaseWeapons
+    include_base_mutations: IncludeBaseMutations
 
     # Multiplayer
     death_link: DeadCellsDeathLink

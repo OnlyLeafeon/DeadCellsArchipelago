@@ -127,38 +127,30 @@ class DeadCellsWorld(World):
         if self.options.dlc_return_to_castlevania:
             dlcs.add(DLC_PURPLE)
         return dlcs
-    
-    def _location_enabled(self, location_id: str) -> bool:
-        """Return True if this location should be included in the pool."""
-        data = LOCATION_TABLE[location_id]
+
+
+    def _item_enabled(self, item_name: str) -> bool:
+        data = ITEM_TABLE[item_name]
         _, classification, dlc = data
 
-        #filter cosmetics if option if off
-        if not self.options.include_cosmetics.value:
-            cat = self._LOCATION_CATEGORY.get(data)
-            if cat in COSMETIC_CATEGORIES:
-                return False
-            
-        return True
-
-    def _item_enabled(self, item_id: str) -> bool:
-        """Return True if this item should be included in the pool."""
-        data = ITEM_TABLE[item_id]
-        _, classification, dlc = data
-
-        # Filter by DLC
+    # DLC filter
         if dlc and dlc not in self.enabled_dlcs:
             return False
 
-        # Filter cosmetics if option is off
+    # Cosmetic filter
         if not self.options.include_cosmetics.value:
-            cat = _ITEM_CATEGORY.get(data)
+            cat = _ITEM_CATEGORY.get(item_name)
             if cat in COSMETIC_CATEGORIES:
-                return False
+                 return False
 
-        # Filter base weapons if option is off
+    # Base weapon filter
         if not self.options.include_base_weapons.value:
-            if item_id in BASE_WEAPONS:
+            if item_name in BASE_WEAPONS:
+                return False
+            
+    # Base mutation filter
+        if not self.options.include_base_mutations.value:
+            if item_name in BASE_PERKS:
                 return False
 
         return True
@@ -166,8 +158,15 @@ class DeadCellsWorld(World):
     # ── AP World interface ────────────────────────────────────────────────────
 
     def generate_early(self) -> None:
-        """Called before multiworld generation. Resolve options."""
         self.enabled_dlcs = self._build_enabled_dlcs()
+
+        if not self.options.include_base_weapons.value:
+            for name in BASE_WEAPONS:
+                self.multiworld.push_precollected(self.create_item(name))
+
+        if not self.options.include_base_mutations.value:
+            for name in BASE_PERKS:
+                self.multiworld.push_precollected(self.create_item(name))
 
     def create_regions(self) -> None:
         """Create all regions and wire transitions."""
@@ -204,26 +203,6 @@ class DeadCellsWorld(World):
         active_locs = get_locations_for_bc(self.enabled_dlcs, disabled_types, bc)
         pool_size = len(active_locs)
 
-        # DEBUG
-        print("Beholder4 in pool:", "Blueprint_Beholder4" in active_locs)
-        print("BossRune4 in pool:", "BSC_BossRune4" in active_locs)
-        print("BossRune5 in pool:", "BSC_BossRune5" in active_locs)
-        prog_items = get_progression_items(self.enabled_dlcs)
-        useful_items = [
-            name for name, data in get_items_for_dlcs(self.enabled_dlcs).items()
-            if data[1] == USFL and self._item_enabled(name)
-        ]
-        print(f"[DC DEBUG] pool_size (locations): {pool_size}")
-        print(f"[DC DEBUG] prog_items: {len(prog_items)}")
-        print(f"[DC DEBUG] useful_items: {len(useful_items)}")
-        print(f"[DC DEBUG] prog + useful: {len(prog_items) + len(useful_items)}")
-        remaining = pool_size - len(prog_items) - len(useful_items)
-        print(f"[DC DEBUG] remaining for fillers/traps: {remaining}")
-        filler_pool = [name for name, data in get_filler_items(self.enabled_dlcs).items() if self._item_enabled(name)]
-        print(f"[DC DEBUG] filler_pool size: {len(filler_pool)}")
-        print(f"[DC DEBUG] option.include_cosmetics.value: {self.options.include_cosmetics.value}")
-        # END DEBUG 
-
         items_to_place: List[DeadCellsItem] = []
         
         reachable_item_names = {
@@ -251,14 +230,16 @@ class DeadCellsWorld(World):
             items_to_place.append(self.create_item(name))
             
         # ── Base items ───────────────────────────────────────────────────────
-        for name in BASE_WEAPONS:
-            items_to_place.append(self.create_item(name))
+        if self.options.include_base_weapons.value:
+            for name in BASE_WEAPONS:
+                items_to_place.append(self.create_item(name))
         
         for name in BASE_META:
             items_to_place.append(self.create_item(name))
-                
-        for name in BASE_PERKS:
-            items_to_place.append(self.create_item(name))
+
+        if self.options.include_base_mutations.value:
+            for name in BASE_PERKS:
+                items_to_place.append(self.create_item(name))
 
         if not self.options.include_cosmetics:
             for name in BASE_SKINS:
@@ -284,7 +265,7 @@ class DeadCellsWorld(World):
 
             trap_pool = list(get_trap_items().keys())
             filler_pool = [
-                name for name, data in get_filler_items(self.enabled_dlcs).items()
+                name for name in get_filler_items(self.enabled_dlcs).keys()
                 if self._item_enabled(name)
             ]
 
