@@ -124,13 +124,25 @@ class IncludeCosmetics(Toggle):
 
 class IncludeBaseWeapons(Toggle):
     """
-    Include base-game weapons and skills that are available from the start
+    Include base-game weapons that are available from the start
     without any blueprint (e.g. Quick Sword, Broad Sword, Dual Daggers).
     When disabled, these items are removed from the pool, making the
     randomizer more focused on blueprint unlocks.
     When enabled, they are added as useful filler items.
     """
     display_name = "Include Starting Weapons in Pool"
+    default = 1
+
+
+class IncludeBaseMutations(Toggle):
+    """
+    Include base-game mutations that are available from the start
+    without any blueprint (e.g. Combo, Support, Necromancy).
+    When disabled, these items are removed from the pool, making the
+    randomizer more focused on blueprint unlocks.
+    When enabled, they are added as useful filler items.
+    """
+    display_name = "Include Starting Mutations in Pool"
     default = 1
 
 
@@ -172,6 +184,7 @@ class DeadCellsOptions(PerGameCommonOptions):
     trap_percentage:       TrapPercentage
     include_cosmetics:     IncludeCosmetics
     include_base_weapons:  IncludeBaseWeapons
+    include_base_mutations: IncludeBaseMutations
 
     # Multiplayer
     death_link: DeadCellsDeathLink
