@@ -14,6 +14,8 @@ Connections encode access rules based on:
 from typing import TYPE_CHECKING, List
 from BaseClasses import Region, Entrance
 from .locations import DeadCellsLocation, LOCATION_TABLE, location_id
+from worlds.generic.Rules import set_rule
+from .rules import get_bc_level
 
 if TYPE_CHECKING:
     from . import DeadCellsWorld
@@ -91,18 +93,24 @@ def _has_biome_enter(state, player: int, biome: str) -> bool:
     loc = f"{biome}_Enter"
     return state.can_reach_location(loc, player)
 
-def _has_bsc(world: "DeadCellsWorld", level: int) -> bool:
-    return world.options.boss_cells.value >= level
+def _has_bsc(state, player, level):
+    return state.count("ProgBossRune", player) >= level
 
 
 def build_rule(requires, world: "DeadCellsWorld"):
     """
-    Build an Archipelago access rule lambda from a requires value.
-    requires can be:
-      - None          -> always accessible
-      - str           -> single condition
-      - list[str]     -> AND of all conditions
+    Enhanced rule builder.
+
+    Supports:
+      - "ItemName" → has item
+      - ["A", "B"] → AND
+      - {"or": [...]} → OR
+      - "ItemName:3" → progressive count (state.count >= 3)
+      - "Boss:Name" → boss kill
+      - "Biome:Name" → biome enter
+      - "BSC:level" → boss cell requirement
     """
+
     if requires is None:
         return lambda state: True
 
@@ -110,55 +118,61 @@ def build_rule(requires, world: "DeadCellsWorld"):
         requires = [requires]
 
     player = world.player
-    runes = {
-        "LadderKey", "TeleportKey", "ScoringKey", "CustomKey",
-        "BreakableGroundKey", "WallJumpKey", "HomKey", "ExploKey",
-        "BossRune1", "BossRune2", "BossRune3", "BossRune4", "BossRune5",
-    }
-    boss_kills = set(BOSS_LOCATION.keys())
-    biome_visits = {"Swamp", "Cliff"}
-    bsc_levels = set(BSC_LEVEL.keys())
-    # AP items that behave like inventory items
-    ap_items = {"Cultist", "LighthouseKey"}
 
-    # Pre-resolve BSC conditions (static, based on option)
-    bsc_conditions = []
-    for req in requires:
-        if req in bsc_levels:
-            bsc_conditions.append(BSC_LEVEL[req])
+    def parse(req):
+        # ── Progressive item (ItemName:count) ──
+        if ":" in req:
+            key, value = req.split(":", 1)
 
-    # If any BSC condition fails at world gen time, rule is always False
-    for level in bsc_conditions:
-        if not _has_bsc(world, level):
-            return lambda state: False
+            # Boss Cell requirement
+            if key == "BSC":
+                level = int(value)
+                return lambda state: state.count("ProgBossRune", player) >= level
 
-    # Build dynamic conditions (checked at runtime)
-    dynamic = []
-    for req in requires:
-        if req in runes or req in ap_items:
-            dynamic.append(("item", req))
-        elif req in boss_kills:
-            dynamic.append(("boss", req))
-        elif req in biome_visits:
-            dynamic.append(("biome", req))
-        elif req in bsc_levels:
-            pass  # Already handled statically above
+            # Boss kill
+            if key == "Boss":
+                return lambda state: _has_boss_kill(state, player, value)
 
-    if not dynamic:
-        return lambda state: True
+            # Biome enter
+            if key == "Biome":
+                return lambda state: _has_biome_enter(state, player, value)
+
+            # Progressive item count
+            count = int(value)
+            return lambda state: state.count(key, player) >= count
+
+        # ── Simple item ──
+        return lambda state: state.has(req, player)
+
+    # ── OR support ──
+    if isinstance(requires, dict) and "or" in requires:
+        rules = [parse(r) for r in requires["or"]]
+        return lambda state: any(rule(state) for rule in rules)
+
+    # ── AND (default) ──
+    rules = [parse(r) for r in requires]
+    return lambda state: all(rule(state) for rule in rules)
+
+def build_transition_rule(requirement, world, player):
+
+    def parse(req, state):
+        # Handle "Item:count"
+        if isinstance(req, str) and ":" in req:
+            name, count = req.split(":")
+            return state.has(name, player, int(count))
+
+        # Handle single item
+        if isinstance(req, str):
+            return state.has(req, player)
+
+        return False
 
     def rule(state):
-        for kind, value in dynamic:
-            if kind == "item":
-                if not _has_item(state, player, value):
-                    return False
-            elif kind == "boss":
-                if not _has_boss_kill(state, player, value):
-                    return False
-            elif kind == "biome":
-                if not _has_biome_enter(state, player, value):
-                    return False
-        return True
+        # List = AND logic
+        if isinstance(requirement, list):
+            return all(parse(r, state) for r in requirement)
+
+        return parse(requirement, state)
 
     return rule
 
@@ -192,17 +206,17 @@ TRANSITIONS = {
     ],
     "PrisonDepths": [
         {"to": "Ossuary",    "require": None},
-        {"to": "SewerDepths","require": "bsc1"},
-        {"to": "Swamp",      "require": None},
+        {"to": "SewerDepths","require": "ProgBossRune"},
+        {"to": "Swamp",      "require": "TeleportKey"},
     ],
     "PrisonCorrupt": [
         {"to": "SewerDepths", "require": None},
-        {"to": "PrisonRoof",  "require": "bsc1"},
+        {"to": "PrisonRoof",  "require": "ProgBossRune"},
         {"to": "DookuCastle", "require": "DookuBeast"},
     ],
     "PrisonRoof": [
         {"to": "Bridge",     "require": None},
-        {"to": "BeholderPit","require": "bsc3"},
+        {"to": "BeholderPit","require": "ProgBossRune:3"},
     ],
     "Ossuary": [
         {"to": "Bridge",    "require": None},
@@ -226,13 +240,13 @@ TRANSITIONS = {
         {"to": "Crypt",      "require": "TeleportKey"},
     ],
     "AncientTemple": [
-        {"to": "Cavern",     "require": ["Giant", "bsc2"]},
+        {"to": "Cavern",     "require": ["Giant", "ProgBossRune:2"]},
         {"to": "ClockTower", "require": None},
         {"to": "Crypt",      "require": "TeleportKey"},
     ],
     "Cemetery": [
         {"to": "Cliff",   "require": None},
-        {"to": "Cavern",  "require": "KingsHand"},
+        {"to": "Cavern",  "require": "HomKey"},
         {"to": "Crypt",   "require": "TeleportKey"},
     ],
     "ClockTower": [
@@ -240,7 +254,7 @@ TRANSITIONS = {
     ],
     "Crypt": [
         {"to": "TopClockTower", "require": None},
-        {"to": "Giant",         "require": ["Giant", "bsc2"]},
+        {"to": "Giant",         "require": ["Giant", "ProgBossRune:2"]},
     ],
     "TopClockTower": [
         {"to": "Shipwreck",      "require": "LighthouseKey"},
@@ -268,7 +282,7 @@ TRANSITIONS = {
         {"to": "Throne",     "require": None},
     ],
     "Throne": [
-        {"to": "Astrolab", "require": "bsc5"},
+        {"to": "Astrolab", "require": "ProgBossRune:5"},
         {"to": "Bank",     "require": None},
         {"to": "End",      "require": None},
     ],
@@ -367,6 +381,7 @@ def create_regions(world: "DeadCellsWorld") -> None:
     Create all regions, populate them with their locations,
     and wire up entrances with access rules.
     """
+    world.created_locations = set()
     enabled_dlcs: set = world.enabled_dlcs  # set of DLC strings, e.g. {"TheBadSeed"}
     bc_level: int     = world.options.boss_cells.value
     player: int       = world.player
@@ -397,53 +412,117 @@ def create_regions(world: "DeadCellsWorld") -> None:
     for loc_name, loc_data in LOCATION_TABLE.items():
         region_name = loc_data["region"]
         if region_name not in regions:
-            continue  # DLC region disabled or virtual region not yet created
+            continue
 
-        # Skip locations whose DLC is not enabled
         loc_dlc = loc_data["dlc"]
         if loc_dlc and loc_dlc not in enabled_dlcs:
             continue
-        
-        if (loc_data["type"] == "skin" or loc_data["type"] == "head" ) and world.options.include_cosmetics.value ==0:
-            continue
-        
-        if loc_data.get("min_bc", 0) > bc_level:
+
+        loc_id = location_id(loc_name)
+        sources = loc_data.get("sources", [])
+
+        if hasattr(world, "grouped_location_sources") and loc_id in world.grouped_location_sources:
+            sources = world.grouped_location_sources[loc_id]
+            min_bc = min(s["min_bc"] for s in sources)
+            max_bc = max(s["max_bc"] for s in sources)
+        else:
+            min_bc = loc_data.get("min_bc", 0)
+            max_bc = world.options.boss_cells.value
+
+        if (loc_data["type"] in ("skin", "head")) and world.options.include_cosmetics.value == 0:
             continue
 
-        # For grouped checks in "Checks" region: skip if no source accessible
+        if min_bc > bc_level:
+            continue
+
         if region_name == "Checks":
             sources = loc_data.get("sources", [])
-            accessible = any(
-                (s["dlc"] == "" or s["dlc"] in enabled_dlcs)
-                and s["min_bc"] <= bc_level <= s["max_bc"]
-                for s in sources
+
+            valid_sources = [
+                s for s in sources
+                if (s["dlc"] == "" or s["dlc"] in enabled_dlcs)
+                and s["biome"] in regions
+            ]
+
+            if not valid_sources:
+                valid_sources = [{"biome": "PrisonStart", "dlc": "", "min_bc": 0, "max_bc": 5}]
+
+            loc = DeadCellsLocation(
+                player,
+                loc_name,
+                location_id(loc_name),
+                regions["Checks"],
             )
-            if not accessible:
-                continue
+
+            world.created_locations.add(loc_name)
+            regions["Checks"].locations.append(loc)
+
+            extra_rule = build_rule(loc_data["requires"], world) if loc_data.get("requires") else None
+
+            # ── NON-"Checks" LOCATIONS (source-based, like your data) ────────
+            sources = loc_data.get("sources", [])
+
+# Filter valid sources (same logic style as Checks)
+        valid_sources = [
+            s for s in sources
+            if (s["dlc"] == "" or s["dlc"] in enabled_dlcs)
+        and s["biome"] in regions
+]
+
+# Fallback to prevent dead locations
+        if not valid_sources:
+            valid_sources = [{"biome": region_name, "dlc": "", "min_bc": 0, "max_bc": 5}]
 
         loc = DeadCellsLocation(
             player,
             loc_name,
-            location_id(loc_name),
+            loc_id,
             regions[region_name],
         )
+
+        world.created_locations.add(loc_name)
         regions[region_name].locations.append(loc)
 
+        extra_rule = build_rule(loc_data["requires"], world) if loc_data.get("requires") else None
+
+        def make_rule(source_data, extra_rule):
+            def rule(state, source_data=source_data):
+                bc = get_bc_level(state, player)
+
+                source_ok = any(
+                    (s["dlc"] == "" or s["dlc"] in enabled_dlcs)
+                    and state.can_reach(s["biome"], "Region", player)
+                    and s["min_bc"] <= bc <= s["max_bc"]
+                    for s in source_data
+                    )
+
+                if extra_rule:
+                 return source_ok and extra_rule(state)
+                return source_ok
+
+            return rule
+
+        set_rule(loc, make_rule(valid_sources, extra_rule))
+        
+
     # ── 3. Wire entrances ─────────────────────────────────────────────────────
-    for from_name, transitions in TRANSITIONS.items():
-        if from_name not in regions:
+    for from_region, exits in TRANSITIONS.items():
+        if from_region not in regions:
             continue
 
-        from_region = regions[from_name]
-        for t in transitions:
-            to_name = t["to"]
-            if to_name not in regions:
-                continue  # target region disabled or not yet reached
+        for exit_data in exits:
+            to_region = exit_data["to"]
+            requirement = exit_data["require"]
 
-            entrance = Entrance(player, f"{from_name} -> {to_name}", from_region)
-            entrance.access_rule = build_rule(t.get("require"), world)
-            from_region.exits.append(entrance)
-            entrance.connect(regions[to_name])
+            if to_region not in regions:
+                continue
+
+            entrance = regions[from_region].connect(regions[to_region])
+            if requirement is not None:
+                set_rule(
+                    entrance,
+                    build_transition_rule(requirement, world, player)
+                )
 
     # ── 4. Wire biome -> Checks entrances ────────────────────────────────────
     # Each biome has an unconditional entrance to the virtual Checks region.
@@ -454,7 +533,7 @@ def create_regions(world: "DeadCellsWorld") -> None:
             if biome_name in ("Menu", "End", "Checks"):
                 continue
             entrance = Entrance(player, f"{biome_name} -> Checks", regions[biome_name])
-            entrance.access_rule = lambda state: True
+            entrance.access_rule = lambda state, b=biome_name: state.can_reach(b, "Region", player)
             regions[biome_name].exits.append(entrance)
             entrance.connect(checks_region)
 

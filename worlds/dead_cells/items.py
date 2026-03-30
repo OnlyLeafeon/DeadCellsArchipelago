@@ -78,11 +78,8 @@ ITEM_TABLE: Dict[str, tuple] = {
     "HomKey":               (0x0006, PROG, DLC_BASE),
     "ExploKey":             (0x0007, PROG, DLC_BASE),
     "LighthouseKey":        (0x0010, PROG, DLC_BASE),
-    "BossRune1":            (0x0008, PROG, DLC_BASE),
-    "BossRune2":            (0x0009, PROG, DLC_BASE),
-    "BossRune3":            (0x000A, PROG, DLC_BASE),
-    "BossRune4":            (0x000B, PROG, DLC_BASE),
-    "BossRune5":            (0x000C, PROG, DLC_RISE_OF_GIANT),
+    "ProgBossRune":            (0x0008, PROG, DLC_BASE),
+  
 
     # ── Meta Upgrades (Useful) ────────────────────────────────────────
     "Flask1":               (0x0100, PROG, DLC_BASE),
@@ -114,7 +111,7 @@ ITEM_TABLE: Dict[str, tuple] = {
     "Bleeder":              (0x0203, USFL, DLC_BASE),
     "DualDaggers":          (0x0204, USFL, DLC_BASE),
     "BroadSword":           (0x0205, USFL, DLC_BASE),
-    "Shovel":               (0x0206, PROG, DLC_BASE),
+    "Shovel":               (0x0206, USFL, DLC_BASE),
     "EvilSword":            (0x0207, USFL, DLC_BASE),
     "BleedCrit":            (0x0208, USFL, DLC_BASE),
     "SpeedBlade":           (0x0209, USFL, DLC_BASE),
@@ -129,7 +126,7 @@ ITEM_TABLE: Dict[str, tuple] = {
     "StunMace":             (0x0212, USFL, DLC_BASE),
     "BumpBoots":            (0x0213, USFL, DLC_BASE),
     "SpikedBoots":          (0x0214, USFL, DLC_BASE),
-    "MultiKickBoots":       (0x0215, PROG, DLC_BASE),
+    "MultiKickBoots":       (0x0215, USFL, DLC_BASE),
     "QuickFists":           (0x0216, USFL, DLC_BASE),
     "Whip":                 (0x0217, USFL, DLC_BASE),
     "HookWhip":             (0x0218, USFL, DLC_BASE),
@@ -147,13 +144,13 @@ ITEM_TABLE: Dict[str, tuple] = {
     "SnakeFang":            (0x0224, USFL, DLC_FATAL_FALLS),
     "GiantStaff":           (0x0225, USFL, DLC_FATAL_FALLS),
     "Lantern":              (0x0226, USFL, DLC_FATAL_FALLS),
-    "Katana":               (0x0227, PROG, DLC_BASE),
+    "Katana":               (0x0227, USFL, DLC_BASE),
     "Tombstone":            (0x0228, USFL, DLC_BASE),
     "HeavyAxe":             (0x0229, USFL, DLC_BASE),
     "Club":                 (0x022A, USFL, DLC_RISE_OF_GIANT),
     "MachetePistol":        (0x022B, USFL, DLC_BASE),
-    "HardLightSword":       (0x022C, PROG, DLC_BASE),
-    "PureNail":             (0x022D, PROG, DLC_BASE),
+    "HardLightSword":       (0x022C, USFL, DLC_BASE),
+    "PureNail":             (0x022D, USFL, DLC_BASE),
     "SkulBone":             (0x022E, USFL, DLC_BASE),
     "Trident":              (0x022F, USFL, DLC_QUEEN_AND_SEA),
     "HandHook":             (0x0230, USFL, DLC_QUEEN_AND_SEA),
@@ -164,7 +161,7 @@ ITEM_TABLE: Dict[str, tuple] = {
     "CupidityDagger":       (0x0235, USFL, DLC_BASE),
     "GoldDigger":           (0x0236, USFL, DLC_BASE),
     "KingScepter":          (0x0237, USFL, DLC_BASE),
-    "BaseballBat":          (0x0238, PROG, DLC_BASE),
+    "BaseballBat":          (0x0238, USFL, DLC_BASE),
     "NunchuckPan":          (0x0239, USFL, DLC_BASE),
     "Starfury":             (0x023A, USFL, DLC_BASE),
     "TPSword":              (0x023B, USFL, DLC_PURPLE),
@@ -202,7 +199,7 @@ ITEM_TABLE: Dict[str, tuple] = {
     "ThrowingIce":          (0x0315, USFL, DLC_BASE),
     "FireBall":             (0x0316, USFL, DLC_BASE),
     "Lightning":            (0x0317, USFL, DLC_BASE),
-    "FlameThrower":         (0x0318, PROG, DLC_BASE),
+    "FlameThrower":         (0x0318, USFL, DLC_BASE),
     "Freeze":               (0x0319, USFL, DLC_BASE),
     "MagicSalve":           (0x031A, USFL, DLC_RISE_OF_GIANT),
     "Blowgun":              (0x031B, USFL, DLC_BAD_SEED),
@@ -254,15 +251,15 @@ ITEM_TABLE: Dict[str, tuple] = {
     "SeismicStomp":         (0x050F, USFL, DLC_BASE),
     "CollectorSpin":        (0x0510, USFL, DLC_BASE),
     "SmokeBomb":            (0x0511, USFL, DLC_BAD_SEED),
-    "SpawnFriendlyHardy":   (0x0512, PROG, DLC_BAD_SEED),
+    "SpawnFriendlyHardy":   (0x0512, USFL, DLC_BAD_SEED),
     "IceArmor":             (0x0513, USFL, DLC_BASE),
     "LightningRod":         (0x0514, USFL, DLC_FATAL_FALLS),
     "GardenerSickles":      (0x0515, USFL, DLC_FATAL_FALLS),
     "FlyingSword":          (0x0516, USFL, DLC_FATAL_FALLS),
     "BubbleShieldPower":    (0x0517, USFL, DLC_FATAL_FALLS),
-    "FaceFlask":            (0x0518, PROG, DLC_BASE),
+    "FaceFlask":            (0x0518, USFL, DLC_BASE),
     "PolloPower":           (0x0519, USFL, DLC_BASE),
-    "SpawnLilStaphy":       (0x051A, PROG, DLC_QUEEN_AND_SEA),
+    "SpawnLilStaphy":       (0x051A, USFL, DLC_QUEEN_AND_SEA),
     "DiverseDeckJuggernaut":(0x051B, USFL, DLC_BASE),
     "Taunt":                (0x051C, USFL, DLC_BASE),
     "BouncingStone":        (0x051D, USFL, DLC_PURPLE),
@@ -642,18 +639,21 @@ def get_items_for_dlcs(enabled_dlcs: Set[str]) -> Dict[str, tuple]:
     }
 
 
-def get_filler_items(enabled_dlcs: Set[str]) -> Dict[str, tuple]:
-    """Return all filler items for the given DLC set."""
-    return {
-        name: data
-        for name, data in get_items_for_dlcs(enabled_dlcs).items()
+def get_filler_items(enabled_dlcs):
+    return [
+        name
+        for name, data in ITEM_TABLE.items()
         if data[1] == FILR
-    }
+        and (data[2] == "" or data[2] in enabled_dlcs)
+    ]
 
 
-def get_trap_items() -> Dict[str, tuple]:
-    """Return all trap items (DLC-independent)."""
-    return {name: data for name, data in ITEM_TABLE.items() if data[1] == TRAP}
+def get_trap_items():
+    return [
+        name
+        for name, data in ITEM_TABLE.items()
+        if data[1] == TRAP
+    ]
 
 
 def get_progression_items(enabled_dlcs: Set[str]) -> Dict[str, tuple]:

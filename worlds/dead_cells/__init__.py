@@ -19,12 +19,12 @@ from .items import (
 )
 from .locations import (
     LOCATION_TABLE, BASE_ID as LOC_BASE_ID,
-    get_locations_for_bc, location_id,
+    get_valid_locations, location_id,
 )
 from .regions import create_regions, REGION_DLC
 from .rules import set_rules as apply_location_rules
 from .base_classes import DeadCellsItem
-
+from BaseClasses import LocationProgressType
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Items that are always base-game weapons (no blueprint required)
@@ -182,104 +182,120 @@ class DeadCellsWorld(World):
             self.player,
         )
 
-    def create_items(self) -> None:
-        """
-        Build and fill the item pool.
+    def create_items(self):
+        multiworld = self.multiworld
+        player = self.player
+        enabled_dlcs = self.enabled_dlcs
 
-        Strategy:
-        1. Count available locations (respecting DLC + BC filters).
-        2. Always place all progression items (runes).
-        3. Fill remaining slots with useful items, then fillers, then traps.
-        """
-        bc = self.options.boss_cells.value
-        trap_pct = self.options.trap_percentage.value / 100.0
+    # ─────────────────────────────────────
+    # 1. Gather item groups
+    # ─────────────────────────────────────
+        progression_items = get_progression_items(enabled_dlcs)  # dict{name: (id, class)}
+        useful_items = get_items_for_dlcs(enabled_dlcs)          # dict{name: (id, class)}
+        filler_items = get_filler_items(enabled_dlcs)            # list[str]
+        trap_items = get_trap_items()                            # list[str]
 
-        # Active locations (determines pool size)
-        disabled_types = set()
-        if self.options.include_cosmetics.value == 0:
-            disabled_types.add("skin")
-            disabled_types.add("head")
-        print(f"[DC DEBUG] disabled_types: {(disabled_types)}")    
-        active_locs = get_locations_for_bc(self.enabled_dlcs, disabled_types, bc)
-        pool_size = len(active_locs)
+    # Remove progression from useful
+        useful_items = [name for name in useful_items if name not in progression_items]
 
-        items_to_place: List[DeadCellsItem] = []
-        
-        reachable_item_names = {
-            data["item"]
-            for data in active_locs.values()
-            if data.get("item") is not None
-        }
+    # ─────────────────────────────────────
+    # 2. Count locations
+    # ─────────────────────────────────────
+        total_locations = len(self.created_locations)
 
-        # ── Progression items (always included) ──────────────────────────────
-        prog_items = get_progression_items(self.enabled_dlcs)
-        for name in prog_items:
-            # BossRuneN is in the pool only if N <= bsc_level
-            if name.startswith("BossRune"):
-                n = int(name[-1])
-                if n > bc:
-                    continue
-            items_to_place.append(self.create_item(name))
+    # ─────────────────────────────────────
+    # 3. Build progression pool (FIXED)
+    # ─────────────────────────────────────
+        itempool = []
 
-        # ── Useful items ──────────────────────────────────────────────────────
-        useful_items = [
-            name for name, data in get_items_for_dlcs(self.enabled_dlcs).items()
-            if data[1] == USFL and self._item_enabled(name) and name in reachable_item_names
-        ]
-        for name in useful_items:
-            items_to_place.append(self.create_item(name))
-            
-        # ── Base items ───────────────────────────────────────────────────────
-        if self.options.include_base_weapons.value:
-            for name in BASE_WEAPONS:
-                items_to_place.append(self.create_item(name))
-        
-        for name in BASE_META:
-            items_to_place.append(self.create_item(name))
+    # Each progression item appears ONCE
+        progression_list = list(progression_items.keys())
 
-        if self.options.include_base_mutations.value:
-            for name in BASE_PERKS:
-                items_to_place.append(self.create_item(name))
+    # Fix Boss Rune count based on BC option
+        max_bc = self.options.boss_cells.value
 
-        if not self.options.include_cosmetics:
-            for name in BASE_SKINS:
-                items_to_place.append(self.create_item(name))
+    # Remove any existing boss runes
+        progression_list = [i for i in progression_list if i != "ProgBossRune"]
 
-            for name in BASE_HEADS:
-                items_to_place.append(self.create_item(name))
+    # Add correct amount
+        progression_list += ["ProgBossRune"] * max_bc
 
-        # ── Trim or pad to pool_size ─────────────────────────────────────────
-        remaining = pool_size - len(items_to_place)
+    # Add to pool
+        itempool += progression_list
 
-        if remaining < 0:
-            # More items than locations: demote excess useful items to filler
-            # Keep all progression, trim useful from the end
-            prog_count = len(prog_items)
-            trimmed_useful = items_to_place[prog_count:prog_count + (len(useful_items) + remaining)]
-            items_to_place = items_to_place[:prog_count] + trimmed_useful
+    # Calculate remaining slots
+        remaining_slots = total_locations - len(itempool)
 
-        elif remaining > 0:
-            # Fill remaining slots with traps + fillers
-            trap_count = int(remaining * trap_pct)
-            filler_count = remaining - trap_count
+        if remaining_slots < 0:
+            print("WARNING: Too many progression items, trimming...")
+            itempool = itempool[:total_locations]
+            remaining_slots = 0
 
-            trap_pool = list(get_trap_items().keys())
-            filler_pool = [
-                name for name in get_filler_items(self.enabled_dlcs).keys()
-                if self._item_enabled(name)
-            ]
+    # ─────────────────────────────────────
+    # 4. Add useful items (LIMITED)
+    # ─────────────────────────────────────
+        useful_limit = int(remaining_slots * 0.5)
+        useful_list = list(useful_items)
 
-            # Cycle through traps
-            for i in range(trap_count):
-                trap_name = trap_pool[i % len(trap_pool)]
-                items_to_place.append(self.create_item(trap_name))
+        itempool += useful_list[:useful_limit]
+        remaining_slots -= min(useful_limit, len(useful_list))
 
-            # Cycle through fillers
-            for i in range(filler_count):
-                filler_name = filler_pool[i % len(filler_pool)]
-                items_to_place.append(self.create_item(filler_name))
+    # ─────────────────────────────────────
+    # 5. Add traps
+    # ─────────────────────────────────────
+        trap_percentage = self.options.trap_percentage.value
+        trap_count = int(total_locations * trap_percentage / 100)
 
-        self.multiworld.itempool += items_to_place
+        itempool += trap_items[:trap_count]
+        remaining_slots -= min(trap_count, len(trap_items))
+
+    # ─────────────────────────────────────
+    # 6. Fill rest with filler
+    # ─────────────────────────────────────
+        if remaining_slots > 0:
+            import random
+            random.shuffle(filler_items)
+
+            filler_cycle = (
+                filler_items * ((remaining_slots // len(filler_items)) + 1)
+            )[:remaining_slots]
+
+            itempool += filler_cycle
+
+    # ─────────────────────────────────────
+    # 7. Safety trim (overflow protection)
+    # ─────────────────────────────────────
+        if len(itempool) > total_locations:
+            overflow = len(itempool) - total_locations
+            print(f"WARNING: Trimming {overflow} excess items")
+
+            for _ in range(overflow):
+                for i in range(len(itempool) - 1, -1, -1):
+                    if itempool[i] in filler_items:
+                        itempool.pop(i)
+                        break
+                else:
+                    for i in range(len(itempool) - 1, -1, -1):
+                        if itempool[i] in useful_items:
+                            itempool.pop(i)
+                            break
+
+    # ─────────────────────────────────────
+    # 8. Convert to AP items
+    # ─────────────────────────────────────
+        final_items = []
+
+        for name in itempool:
+            item_data = ITEM_TABLE[name]
+            item = DeadCellsItem(
+                name,
+                item_data[1],  # classification
+                item_id(name),
+                player,
+            )
+            final_items.append(item)
+
+        multiworld.itempool += final_items
 
     def set_rules(self) -> None:
         """
@@ -299,6 +315,29 @@ class DeadCellsWorld(World):
         Return slot data sent to the game client on connection.
         The Dead Cells mod uses this to configure the session.
         """
+        multiworld = self.multiworld
+        player = self.player
+
+        early_locations = [
+            loc for loc in multiworld.get_locations(player)
+            if getattr(loc, "min_bc", 0) == 0
+        ]
+
+        progression_items = [
+            item for item in multiworld.itempool
+            if item.name in [
+            "LadderKey",
+            "WallJumpKey",
+            "BreakableGroundKey",
+            "HomKey",
+            "ProgBossRune"
+        ]
+    ]  
+
+        for item, loc in zip(progression_items, early_locations):
+            if not loc.item:
+                loc.place_locked_item(item)
+
         return {
             "boss_cells":                self.options.boss_cells.value,
             "death_link":                bool(self.options.death_link.value),

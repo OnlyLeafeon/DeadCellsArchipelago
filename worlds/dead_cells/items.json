@@ -827,25 +827,10 @@
     "category": "Meta",
     "dlc": ""
   },
-  "BossRune1": {
-    "category": "Meta",
-    "dlc": ""
-  },
-  "BossRune2": {
-    "category": "Meta",
-    "dlc": ""
-  },
-  "BossRune3": {
-    "category": "Meta",
-    "dlc": ""
-  },
-  "BossRune4": {
-    "category": "Meta",
-    "dlc": ""
-  },
-  "BossRune5": {
-    "category": "Meta",
-    "dlc": "RiseOfTheGiant"
+  "ProgBossRune": {
+    "category": ["Meta", "bc"],
+    "dlc": "",
+    "count": 5
   },
   "AnyUp": {
     "category": "Consumable",
