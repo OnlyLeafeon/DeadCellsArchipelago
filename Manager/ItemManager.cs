@@ -24,6 +24,7 @@ namespace DeadCellsArchipelago {
         public static bool heroJustDead = false;
         public static int aspectsToIter = 0;
         public static List<string> dropableList = [];
+        public static int bossRuneGivenSinceLaunch = 0;
 
         public static void InitDropableList()
         {
@@ -267,14 +268,14 @@ namespace DeadCellsArchipelago {
                         RuneManager.ActivateMinimapTracking(itemName);
                         LogItem(itemName);
                         return true;
-                    case "BossRune1":
-                    case "BossRune2":
-                    case "BossRune3":
-                    case "BossRune4":
-                    case "BossRune5":
-                        ITEM_META_MANAGER.addPermanentItem(itemName.AsHaxeString());
-                        LogItem(itemName);
-                        return true;
+                    case "ProgBossRune":
+                        string? unlockedName = HandleBossRune();
+                        if(unlockedName != null)
+                        {
+                            ITEM_META_MANAGER.addPermanentItem(unlockedName.AsHaxeString());
+                            LogItem(unlockedName);
+                        }
+                        return false;
 
                 }//todo: other kinds
                 if (itemName.Length >= 5 && itemName[..5] == "Trap_")
@@ -334,6 +335,55 @@ namespace DeadCellsArchipelago {
             return newProgName;
         }
 
+        private static string? HandleBossRune()
+        {
+            var newRuneName = NewRuneBossName();
+            if(SAVED_DATA != null && newRuneName != null)
+            {
+                SAVED_DATA.SaveItemRecieved(newRuneName);
+                return newRuneName;
+            }
+            return null;
+        }
+
+        private static string? NewRuneBossName()
+        {
+            if (SAVED_DATA != null)
+            {
+                if (bossRuneGivenSinceLaunch < SAVED_DATA.NumberOfBossRuneRecieved())
+                {
+                    bossRuneGivenSinceLaunch++;
+                    return null;
+                }
+                else if (SAVED_DATA.NumberOfBossRuneRecieved() < 5)
+                {
+                    string? res = null;
+                    if (SAVED_DATA.IsItemRecieved("BossRune4"))
+                    {
+                        res = "BossRune5";
+                    }
+                    else if (SAVED_DATA.IsItemRecieved("BossRune3"))
+                    {
+                        res = "BossRune4";
+                    }
+                    else if (SAVED_DATA.IsItemRecieved("BossRune2"))
+                    {
+                        res = "BossRune3";
+                    }
+                    else if (SAVED_DATA.IsItemRecieved("BossRune1"))
+                    {
+                        res = "BossRune2";
+                    }
+                    else
+                    {
+                        res = "BossRune1";
+                    }
+                    bossRuneGivenSinceLaunch++;
+                    return res;
+                }
+            }
+            return null;
+        }
 
         public static bool InDropableList(string itemName)
         {

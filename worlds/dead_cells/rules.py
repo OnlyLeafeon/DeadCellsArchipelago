@@ -6,7 +6,7 @@ Location-level access rules that go beyond region entrance conditions.
 These are applied after create_regions() in __init__.py via set_rules().
 
 Rule categories:
-  - BSC level requirements (static, based on world option)
+  - BSC level requirements (based on ProgBossRune count)
   - Item requirements (runes, AP items in inventory)
   - Boss kill requirements (specific location checks completed)
   - Skin count requirements (number of Skin-category items received)
@@ -23,6 +23,7 @@ Adding new rules:
 """
 
 from typing import TYPE_CHECKING, List
+from worlds.generic.Rules import add_rule
 
 if TYPE_CHECKING:
     from . import DeadCellsWorld
@@ -89,9 +90,8 @@ def _has(item):
     )
 
 def _has_all(*items):
-    """Rule: player has ALL listed items."""
     return lambda world: (
-        lambda state: all(state.has(i, world.player) for i in items)
+        lambda state: state.has_all(items, world.player)
     )
 
 def _has_any(*items):
@@ -100,28 +100,28 @@ def _has_any(*items):
         lambda state: any(state.has(i, world.player) for i in items)
     )
 
-def _has_all_any(*required_items, any_of):
-    """Rule: player has all required_items AND at least one of any_of."""
+def _has_all_any(all_items, any_of=()):
+    flat_items = tuple(
+        item for sub in all_items
+        for item in (sub if isinstance(sub, (list, tuple)) else (sub,))
+    )
+
     return lambda world: (
-        lambda state: (
-            all(state.has(i, world.player) for i in required_items)
-            and any(state.has(i, world.player) for i in any_of)
-        )
+        lambda state:
+            state.has_all(flat_items, world.player)
+            and (not any_of or any(state.has(i, world.player) for i in any_of))
     )
 
 def _bsc(level: int):
-    """Rule: world boss_cells option >= level (static)."""
     return lambda world: (
-        (lambda state: True) if world.options.boss_cells.value >= level
-        else (lambda state: False)
+        lambda state: get_bc_level(state, world.player) >= level
     )
 
 def _has_and_bsc(item: str, level: int):
-    """Rule: has item AND boss_cells >= level."""
     return lambda world: (
-        lambda state: state.has(item, world.player)
-    ) if world.options.boss_cells.value >= level else (
-        lambda world: lambda state: False
+        lambda state:
+            state.has(item, world.player)
+            and get_bc_level(state, world.player) >= level
     )
 
 def _skin_count(count: int):
@@ -156,6 +156,9 @@ def _has_and_boss(item: str, boss_loc: str):
             and state.can_reach_location(boss_loc, world.player)
         )
     )
+
+def get_bc_level(state, player):
+    return state.count("ProgBossRune", player)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -206,8 +209,11 @@ LOCATION_RULES = [
     ("Blueprint_Shockwave", _has("LadderKey")),
     
     ("Blueprint_LongBow", _has("LadderKey")),
-    ("Blueprint_ExplosiveCrossBow", _has("LadderKey") and _has("BreakableGroundKey") and (_has("WallJumpKey") or _has("HomKey"))),
-
+    ("Blueprint_ExplosiveCrossBow",
+      _has_all_any(
+     ["LadderKey", "BreakableGroundKey"], any_of=["WallJumpKey", "HomKey"]
+ )),
+    ("PrisonCourtyard_Exit", _has("LadderKey")),
     # ── Lighthouse access (no LighthouseKey item yet) ─────────────────────────
     # Requires having visited SewerShort AND StiltVillage
     # More precise: SewerShort biome_enter AND StiltVillage biome_enter
@@ -238,7 +244,13 @@ LOCATION_RULES = [
     )),
     # Terraria: requires BackpackUnlock — rule disabled for now to avoid fill errors
     # TODO: re-enable once BackpackUnlock is confirmed as progression item
-    ("Blueprint_Terraria", _has("BackpackUnlock") and _boss_killed("Boss_KingsHand")),
+    ("Blueprint_Terraria",
+    lambda world: (
+        lambda state:
+             state.has("BackpackUnlock", world.player) and
+             state.can_reach_location("Boss_KingsHand", world.player)
+ )
+),
     ("Blueprint_HotlineMiamiChicken", _has("BaseballBat")),
     ("Blueprint_KatanaZero", _has("Katana")),
     ("Blueprint_ShovelKnight", _has("Shovel")),
@@ -272,7 +284,7 @@ LOCATION_RULES = [
     ("Item_MushroomBoi", _has("SpawnFriendlyHardy")),
     ("Item_BlobbyFlameMagma", _boss_killed("Boss_KingsHand")),
     ("Item_BlowTorchRed", _has("FlameThrower")),
-    ("Item_BossCellHead", _has("BossRune5")),
+    ("Item_BossCellHead", _has("ProgBossRune:5")),
 ]
 
 
@@ -283,60 +295,56 @@ LOCATION_RULES = [
 # can reach ANY of the biomes where that item drops, at the right BC level.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _build_grouped_rules(world: "DeadCellsWorld") -> None:
-    """
-    For every grouped check (region="Checks"), build an OR access rule:
-    accessible if the player can reach ANY source biome at the right BC.
-    """
-    from .locations import LOCATION_TABLE, location_id
-    multiworld = world.multiworld
+def _build_grouped_rules(world):
+    if not hasattr(world, "grouped_location_sources"):
+        return
     player = world.player
-    bc_level = world.options.boss_cells.value
-    enabled_dlcs = world.enabled_dlcs
+    multiworld = world.multiworld
 
-    # Build set of region names that actually exist in this world
+    enabled_dlcs = set()
+
+    if world.options.dlc_rise_of_the_giant.value:
+        enabled_dlcs.add("RiseOfTheGiant")
+
+    if world.options.dlc_the_bad_seed.value:
+        enabled_dlcs.add("TheBadSeed")
+
+    if world.options.dlc_fatal_falls.value:
+        enabled_dlcs.add("FatalFalls")
+
+    if world.options.dlc_the_queen_and_the_sea.value:
+        enabled_dlcs.add("TheQueenAndTheSea")
+
+    if world.options.dlc_return_to_castlevania.value:
+        enabled_dlcs.add("Purple")
+
     existing_regions = {r.name for r in multiworld.regions if r.player == player}
 
-    for loc_name, loc_data in LOCATION_TABLE.items():
-        if loc_data["region"] != "Checks":
-            continue
-        try:
-            location = multiworld.get_location(loc_name, player)
-        except KeyError:
-            continue
-
-        sources = loc_data.get("sources", [])
-        # Filter sources valid for this DLC + BC config AND whose region exists
+    for location, sources in world.grouped_location_sources.items():
+        # Filter valid sources once
         valid_sources = [
             s for s in sources
-            if (s["dlc"] == "" or s["dlc"] in enabled_dlcs)
-            and s["min_bc"] <= bc_level <= s["max_bc"]
-            and s["biome"] in existing_regions
+            if s["biome"] in existing_regions
         ]
-        if not valid_sources:
-            location.access_rule = lambda state: False
-            continue
 
-        biomes = [s["biome"] for s in valid_sources]
-
-        def make_rule(source_biomes):
+        def make_rule(source_data):
             def rule(state):
+                bc = get_bc_level(state, player)
+
                 return any(
-                    state.can_reach(b, "Region", player)
-                    for b in source_biomes
+                    (s["dlc"] == "" or s["dlc"] in enabled_dlcs)
+                    and s["min_bc"] <= bc <= s["max_bc"]
+                    and state.can_reach(s["biome"], "Region", player)
+                    for s in source_data
                 )
             return rule
+        try:
+            loc_obj = multiworld.get_location(location, player)
+        except KeyError:
+            print(f"[GroupedRules] Missing location: {location}")
+            continue
 
-        location.access_rule = make_rule(biomes)
-        
-        # Rare/Legendary blueprints require PokebombUnlock
-        if loc_data.get("rarity") in ("Rare", "Legendary"):
-            base_rule = location.access_rule
-            def make_rarity_rule(existing_rule, p=player):
-                def rule(state):
-                    return existing_rule(state) and state.has("PokebombUnlock", p)
-                return rule
-            location.access_rule = make_rarity_rule(location.access_rule)
+        biomes = {s["biome"] for s in valid_sources}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Main entry point — called from __init__.py set_rules()
@@ -363,13 +371,6 @@ def set_rules(world: "DeadCellsWorld") -> None:
         try:
             location = multiworld.get_location(loc_name, player)
         except KeyError:
-            # Location not in this world (DLC off, BC filtered, etc.)
             continue
 
-        if len(rules) == 1:
-            location.access_rule = rules[0]
-        else:
-            # AND all rules together
-            def combined(state, _rules=rules):
-                return all(r(state) for r in _rules)
-            location.access_rule = combined
+        add_rule(location, lambda state, rs=rules: all(r(state) for r in rs))

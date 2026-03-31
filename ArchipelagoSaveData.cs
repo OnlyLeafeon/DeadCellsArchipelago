@@ -84,5 +84,19 @@ namespace DeadCellsArchipelago {
             Directory.CreateDirectory(saveDir);
             return Path.Combine(saveDir, $"archipelagoUserId_{slot}.json");
         }
+
+        public int NumberOfBossRuneRecieved()
+        {
+            int res = 0;
+            foreach (string item in RecievedItem)
+            {
+                if (item.Length >= 8 && "BossRune" == item[..8])
+                {
+                    res ++;
+                }
+            }
+
+            return res;
+        }
     }
 }
