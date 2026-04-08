@@ -4,6 +4,7 @@ using static DeadCellsArchipelago.ItemQueue;
 using dc.en;
 using Serilog;
 using ModCore.Utilities;
+using HaxeProxy.Runtime;
 
 namespace DeadCellsArchipelago {
     public static class HeroManager
@@ -58,6 +59,12 @@ namespace DeadCellsArchipelago {
                 DieByDeathLink();
                 deathLinkReceived = false;
             }
+        }
+
+        public static void OnAddCells(Hook_Hero.orig_addCells orig, Hero self, int v, Ref<bool> noStats)
+        {
+            v *= 4;
+            orig(self, v, noStats);
         }
     }
 }

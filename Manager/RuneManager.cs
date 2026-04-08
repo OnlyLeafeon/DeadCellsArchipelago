@@ -1,8 +1,13 @@
 using dc;
 using dc.en;
 using dc.en.inter;
+using dc.h2d;
 using dc.hl.types;
+using dc.libs.heaps.slib;
 using dc.tool;
+using dc.ui;
+using HaxeProxy.Runtime;
+using ModCore.Utilities;
 using Serilog;
 
 using static DeadCellsArchipelago.ItemManager;
@@ -14,7 +19,42 @@ namespace DeadCellsArchipelago {
 
         public static void OnApplyItemPickEffect(Hook_Hero.orig_applyItemPickEffect orig, Hero self, Entity from, InventItem i)
         {   //called each time the player take any item not blueprint
-            Log.Warning($"=== pick effect on {i._itemData.id} ===");
+            Log.Warning($"=== pick effect on {i._itemData.id} {i._itemData.name} ===");
+            bool noStats = false;
+            Random rnd = new Random();
+            int msgNumber = 0;
+            if(i._itemData.name.ToString() == "Archipelago Money Bag")
+            {
+                msgNumber = rnd.Next(8192, 131073);
+                self.addMoney(msgNumber, new Ref<bool>(ref noStats));
+                self.popText($"+{msgNumber}{{iconCoin@img}}".AsHaxeString(), dc.ui.Text.Class.COLORS.get("GO".AsHaxeString()));
+                return;
+            }
+            if (i._itemData.name.ToString() == "Archipelago Cells Bag")
+            {
+                msgNumber = rnd.Next(8, 129);
+                self.addCells(msgNumber, new Ref<bool>(ref noStats));
+                msgNumber *= 4;
+
+                int frame = 0;
+                double XY = 0;
+                Tile cellTile = Assets.Class.gameElements.getTile("cell".AsHaxeString(), new Ref<int>(ref frame), new Ref<double>(ref XY), new Ref<double>(ref XY), null); //@1233
+
+                var pop = self.popText($"+{msgNumber}".AsHaxeString(), dc.ui.Text.Class.COLORS.get("CE".AsHaxeString()));
+
+                var addX = 0;
+                if (msgNumber > 99)
+                {
+                    addX = 5;
+                }
+                new Bitmap(cellTile, pop.text)
+                {
+                    x = 30 + addX,
+                    y = 10
+                };
+
+                return;
+            }
             switch (i._itemData.id.ToString())
             {
                 case "LadderKey":

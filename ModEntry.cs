@@ -44,6 +44,8 @@ using dc.uicore.element;
 using dc.achievements;
 using dc.en.inter.npc;
 using ModCore.Modules;
+using ModCore.Events.Interfaces.Game;
+using ModCore.Events.Interfaces;
 
 
 namespace DeadCellsArchipelago{
@@ -51,7 +53,8 @@ namespace DeadCellsArchipelago{
     public class ModEntry(ModInfo info) : ModBase(info), 
         IOnAfterLoadingSave,
         IOnBeforeSavingSave,
-        IOnHeroUpdate
+        IOnHeroUpdate//,
+        //IOn
     {
         private ArchipelagoManager archipelago = new();
         private ArchipelagoSaveData savedData = new();
@@ -66,6 +69,8 @@ namespace DeadCellsArchipelago{
             Hook_Hero.pickBlueprint += OnBlueprintPicked;
             Hook_Hero.applyItemPickEffect += OnApplyItemPickEffect; //used for runes
             Hook_Hero.onDie += OnHeroDie;
+            Hook_Hero.addCells += OnAddCells;
+            Hook_CollectorPanel.update += yesy;
 
             Hook_ItemMetaManager.hasRevealedItem += ReallyHasBlueprint; //might check rune
             Hook_ItemMetaManager.revealAllBaseItems += ReallyRevealAllBaseItems;
@@ -117,6 +122,12 @@ namespace DeadCellsArchipelago{
             //Exit
             //dc.pr.Game
             Hook_Exit.onActivate += OnActiviteExit;
+        }
+
+        private void yesy(Hook_CollectorPanel.orig_update orig, CollectorPanel self)
+        {
+            Log.Warning($"{self.cellCount.icon}");
+            orig(self);
         }
 
         public void OnHeroUpdate(double dt)

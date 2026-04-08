@@ -107,6 +107,11 @@ namespace DeadCellsArchipelago {
             }
             else
             {
+                if (self.destLevel.ToString()[..2] == "T_")
+                {
+                    bool noStats = false;
+                    by.addCells(10, new Ref<bool>(ref noStats));
+                }
                 orig(self, by, lp);
             }
         }
