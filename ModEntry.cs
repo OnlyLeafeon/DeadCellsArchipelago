@@ -14,6 +14,8 @@ using static DeadCellsArchipelago.NpcManager;
 using static DeadCellsArchipelago.HeroManager;
 using static DeadCellsArchipelago.ItemQueue;
 using static DeadCellsArchipelago.Translator;
+using static DeadCellsArchipelago.MainMenuManager;
+using static DeadCellsArchipelago.ImageManager;
 using dc.en.mob;
 using dc._Data;
 using dc.pr;
@@ -46,6 +48,8 @@ using dc.en.inter.npc;
 using ModCore.Modules;
 using ModCore.Events.Interfaces.Game;
 using ModCore.Events.Interfaces;
+using dc.level.disp;
+using dc.h2d.col;
 
 
 namespace DeadCellsArchipelago{
@@ -63,6 +67,15 @@ namespace DeadCellsArchipelago{
         {
             Log.Information("=== Archipelago Mod is loading... ===");
 
+            //TitleScreen
+
+            Hook_TitleScreen.mainMenu += OnMainMenu;
+            Hook_TitleScreen.update += OnUpdate;
+            Hook_TitleScreen.onResize += OnOnResize;
+
+            Hook_Pixels.convert += OnConvert;
+            //UIDlc
+
             InitializeBossHooks();
 
             Hook_Hero.init += OnHeroInit;
@@ -70,7 +83,6 @@ namespace DeadCellsArchipelago{
             Hook_Hero.applyItemPickEffect += OnApplyItemPickEffect; //used for runes
             Hook_Hero.onDie += OnHeroDie;
             Hook_Hero.addCells += OnAddCells;
-            Hook_CollectorPanel.update += yesy;
 
             Hook_ItemMetaManager.hasRevealedItem += ReallyHasBlueprint; //might check rune
             Hook_ItemMetaManager.revealAllBaseItems += ReallyRevealAllBaseItems;
@@ -113,8 +125,8 @@ namespace DeadCellsArchipelago{
             IdToApName = LoadModApTranslation();
             ApNameToId = Invert(IdToApName);
 
-            archipelago.Connect(confData.serverIp, confData.slotName, confData.password);
-            ARCHIPELAGO = archipelago;
+/*            archipelago.Connect(confData.serverIp, confData.slotName, confData.password);
+            ARCHIPELAGO = archipelago;*/
 
             Log.Information("=== Archipelago Mod loaded ! ===");
             //dc.level.@struct.Throne
@@ -122,12 +134,8 @@ namespace DeadCellsArchipelago{
             //Exit
             //dc.pr.Game
             Hook_Exit.onActivate += OnActiviteExit;
-        }
 
-        private void yesy(Hook_CollectorPanel.orig_update orig, CollectorPanel self)
-        {
-            Log.Warning($"{self.cellCount.icon}");
-            orig(self);
+            TextInput.Class.MAX_LENGTH = 50;
         }
 
         public void OnHeroUpdate(double dt)
@@ -222,11 +230,6 @@ namespace DeadCellsArchipelago{
             return System.IO.Path.Combine(saveDir, $"archipelagoUserId_{slot}.json");
         }
 
-        private string GetConfFilePath()
-        {
-            return System.IO.Path.Combine(AppContext.BaseDirectory, "..", "..", "mods", "DeadCellsArchipelago", "conf.json");
-        }
-
         private ArrayObj OnLevelGenGenerate(Hook_LevelGen.orig_generate orig, LevelGen self, User user, int seed, Hashlink.Virtuals.virtual_baseLootLevel_biome_bonusTripleScrollAfterBC_cellBonus_dlc_doubleUps_eliteRoomChance_eliteWanderChance_flagsProps_group_icon_id_index_loreDescriptions_mapDepth_minGold_mobDensity_mobs_name_nextLevels_parallax_props_quarterUpsBC3_quarterUpsBC4_specificLoots_specificSubBiome_transitionTo_tripleUps_worldDepth_ ldat, Ref<bool> resetCount)
         {
             if(USER == null)
@@ -236,23 +239,6 @@ namespace DeadCellsArchipelago{
             ITEM_META_MANAGER = user.itemMeta;
             var result = orig(self, user, seed, ldat, resetCount);
             return result;
-        }
-
-        private ConfData GetConfData()
-        {
-            var confPath = GetConfFilePath();
-            var confData = new ConfData();
-            if (System.IO.File.Exists(confPath))
-            {
-                var json = System.IO.File.ReadAllText(confPath);
-                confData = JsonConvert.DeserializeObject<ConfData>(json) ?? new();
-            }
-            else
-            {
-                var json = JsonConvert.SerializeObject(confData, Formatting.Indented);
-                System.IO.File.WriteAllText(confPath, json);
-            }
-            return confData;
         }
     }
 }
