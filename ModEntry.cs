@@ -118,7 +118,6 @@ namespace DeadCellsArchipelago{
             //AspectMaster
             //ItemMetaManager
             //InventItemKind
-
             //archipelago.EnableMockMode();
             // TODO: Get infos from ui
             //var confData = GetConfData();
@@ -137,6 +136,8 @@ namespace DeadCellsArchipelago{
             Hook_Exit.onActivate += OnActiviteExit;
 
             TextInput.Class.MAX_LENGTH = 50;
+
+            Hook_LootGen.addBlueprintAt += FixNotSpawningBlueprint;
         }
 
         public void OnHeroUpdate(double dt)

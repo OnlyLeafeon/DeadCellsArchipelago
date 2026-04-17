@@ -1,4 +1,5 @@
 using dc.en;
+using dc.level;
 using dc.tool;
 using dc.ui;
 using ModCore.Utilities;
@@ -80,6 +81,12 @@ namespace DeadCellsArchipelago {
             {
                 orig(self, headKind);
             }
+        }
+
+        public static void FixNotSpawningBlueprint(Hook_LootGen.orig_addBlueprintAt orig, LootGen self, LevelMap map, int cx, int cy, dc.String k, bool freeItemAsAlt, bool noAlt)
+        {
+            //I don't know why but without this hook, blueprints like the two in half life lore room won't spawn without DualBow
+            orig(self, map, cx, cy, k, freeItemAsAlt, noAlt);
         }
     }
 }
