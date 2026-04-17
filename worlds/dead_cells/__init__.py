@@ -30,36 +30,93 @@ from BaseClasses import LocationProgressType
 # Items that are always base-game weapons (no blueprint required)
 # Excluded when include_base_weapons is off
 # ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────
+# BASE LOADOUT ITEMS
+# ─────────────────────────────────────
+
+
 BASE_WEAPONS = {
-    "QuickSword", "DualDaggers", "StunMace",
-    "DualBow", "ThrowingKnife", "LightningWhip", "ThrowingTorch", "Freeze",
-    "Shield", "GreedShield",
-    "ExtraHeal",
-    "FastGrenade", "IceBomb",
-    "StandardTurret", "RootTrap",
+    "Balanced Blade",
+    "Twin Daggers",
+    "Nutcracker",
+
+    "Multiple-nocks Bow",
+    "Throwing Knife",
+    "Electric Whip",
+    "Firebrands",
+    "Ice Blast",
+
+    "Cudgel",
+    "Greed Shield",
+
+    "Tonic",
+
+    "Infantry Grenade",
+    "Ice Grenade",
+
+    "Sinew Slicer",
+    "Wolf Trap",
 }
 
-BASE_META = {#"Flask1" in prog
-    "Flask2", "Flask3", "Flask4",
-    "Money1", "Money2", "Money3", "Money4",
-    "RandomBow", "RandomShield", "RandomCC",
-    "Recycling1", "Recycling2",
-    "ShopRerolls", "PokebombUnlock", "MirrorUnlock", "BackpackUnlock",
+
+# ─────────────────────────────────────
+# BASE META UPGRADES
+# ─────────────────────────────────────
+
+BASE_META = {
+    "Progressive Flask",
+    "Progressive Gold Reserves",
+    "Random Starter Bow",
+    "Random Starter Shield",
+    "Random Melee Weapon",
+    "Progressive Recycling",
+    "Restock",
+    "Specialist's Showroom",
+    "Hunter's Mirror",
+    "Backpack",
 }
+
+
+# ─────────────────────────────────────
+# BASE MUTATIONS
+# ─────────────────────────────────────
 
 BASE_PERKS = {
-    "P_CDR_Kill", "P_DmgKill", "P_DmgRevenge",
-    "P_DeployedDmg", "P_NoMobAround", "P_CDR_Distance",
-    "P_CDR_Parry", "P_DmgParry", "P_HealOnKill",
-    "P_Yolo", "P_CDR_Crit",
+    "Killer Instinct",
+    "Combo",
+    "Vengeance",
+    "Support",
+    "Tranquility",
+    "Velocity",
+    "Counterattack",
+    "Spite",
+    "Frenzy",
+    "Ygdar Orus Li Ox",
+    "Critical Recovery",
 }
+
+
+# ─────────────────────────────────────
+# BASE OUTFITS
+# ─────────────────────────────────────
 
 BASE_SKINS = {
-    "PrisonerGOG", "PrisonerFrench", "PrisonerRetro", "Snowman", "SantaKLOS",
+    "GOG Outfit",
+    "French Outfit",
+    "Retro Outfit",
+    "Snowman Outfit",
+    "Santa Outfit",
 }
 
+
+# ─────────────────────────────────────
+# BASE HEAD COSMETICS
+# ─────────────────────────────────────
+
 BASE_HEADS = {
-    "BlackHoleViolet", "VortexHelloDarkness", "BlowTorch",
+    "Violet Black Hole",
+    "Hello Darkness Vortex",
+    "Blowtorch",
 }
 
 # Cosmetic categories excluded when include_cosmetics is off
@@ -267,7 +324,7 @@ class DeadCellsWorld(World):
         remaining_slots = total_locations - len(itempool)
 
         if remaining_slots < 0:
-            print(f"[DC DEBUG] Too many progression items ({len(itempool)}/{total_locations}), trimming.")
+           
             itempool = itempool[:total_locations]
             remaining_slots = 0
 
@@ -352,14 +409,6 @@ class DeadCellsWorld(World):
 
         multiworld.itempool += final_items
 
-        print(
-            f"[DC DEBUG] create_items: "
-            f"locations={total_locations}, "
-            f"items={len(final_items)}, "
-            f"progressive_stem_cells={max_bc}, "
-            f"progressive_flasks=4, "
-            f"progressive_gold_reserves=5"
-        )
 
     def set_rules(self) -> None:
         """

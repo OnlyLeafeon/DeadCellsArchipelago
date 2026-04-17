@@ -79,35 +79,35 @@ TRANSITIONS = {
     ],
     "PrisonStart": [
         {"to": "PrisonCourtyard", "require": None},
-        {"to": "SewerShort", "require": "LadderKey"},
-        {"to": "Greenhouse", "require": ["TeleportKey", "Dilapidated Arboretum"]},
+        {"to": "SewerShort", "require": "Vine Rune"},
+        {"to": "Greenhouse", "require": ["Teleportation Rune", "Dilapidated Arboretum"]},
         {"to": "PurpleGarden", "require": "Castle Outskirts"},
     ],
     "PrisonCourtyard": [
-        {"to": "Ossuary", "require": ["LadderKey", "TeleportKey", "Ossuary"]},
-        {"to": "PrisonRoof", "require": "LadderKey"},
-        {"to": "PrisonDepths", "require": ["WallJumpKey", "LadderKey", "Prison Depths"]},
-        {"to": "Swamp", "require": ["TeleportKey", "Morass of the Banished"]},
+        {"to": "Ossuary", "require": ["Vine Rune", "Teleportation Rune", "Ossuary"]},
+        {"to": "PrisonRoof", "require": "Vine Rune"},
+        {"to": "PrisonDepths", "require": ["Spider Rune", "Vine Rune", "Prison Depths"]},
+        {"to": "Swamp", "require": ["Teleportation Rune", "Morass of the Banished"]},
     ],
     "SewerShort": [
-        {"to": "PrisonCorrupt", "require": ["WallJumpKey", "Corrupted Prison"]},
+        {"to": "PrisonCorrupt", "require": ["Spider Rune", "Corrupted Prison"]},
         {"to": "PrisonRoof", "require": None},
-        {"to": "SewerDepths", "require": ["BreakableGroundKey", "Ancient Sewers"]},
-        {"to": "DookuCastle", "require": ["DookuBeast", "Draclua's Castle"]},
+        {"to": "SewerDepths", "require": ["Ram Rune", "Ancient Sewers"]},
+        {"to": "DookuCastle", "require": ["DookuBeast", "Dracula's Castle"]},
     ],
     "PrisonDepths": [
         {"to": "Ossuary", "require": "Ossuary"},
-        {"to": "SewerDepths", "require": ["ProgBossRune", "Ancient Sewers"]},
-        {"to": "Swamp", "require": ["TeleportKey", "Morass of the Banished"]},
+        {"to": "SewerDepths", "require": ["Progressive Stem Cell", "Ancient Sewers"]},
+        {"to": "Swamp", "require": ["Teleportation Rune", "Morass of the Banished"]},
     ],
     "PrisonCorrupt": [
         {"to": "SewerDepths", "require": "Ancient Sewers"},
-        {"to": "PrisonRoof", "require": "ProgBossRune"},
-        {"to": "DookuCastle", "require": ["DookuBeast", "Draclua's Castle"]},
+        {"to": "PrisonRoof", "require": "Progressive Stem Cell"},
+        {"to": "DookuCastle", "require": ["DookuBeast", "Dracula's Castle"]},
     ],
     "PrisonRoof": [
         {"to": "Bridge", "require": None},
-        {"to": "BeholderPit", "require": ["ProgBossRune:3", "Insufferable Crypt"]},
+        {"to": "BeholderPit", "require": ["Progressive Stem Cell:3", "Insufferable Crypt"]},
     ],
     "Ossuary": [
         {"to": "Bridge", "require": None},
@@ -119,53 +119,53 @@ TRANSITIONS = {
     "Bridge": [
         {"to": "Tumulus", "require": "Fractured Shrines"},
         {"to": "StiltVillage", "require": "Stilt Village"},
-        {"to": "AncientTemple", "require": ["WallJumpKey", "Slumbering Sanctuary"]},
+        {"to": "AncientTemple", "require": ["Spider Rune", "Slumbering Sanctuary"]},
     ],
     "BeholderPit": [
         {"to": "AncientTemple", "require": "Slumbering Sanctuary"},
-        {"to": "Cemetery", "require": ["WallJumpKey", "Graveyard"]},
+        {"to": "Cemetery", "require": ["Spider Rune", "Graveyard"]},
     ],
     "StiltVillage": [
-        {"to": "Cliff", "require": [["Cultist", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "HomKey"]]},
+        {"to": "Cliff", "require": [["Cultist Outfit", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "Homunculus Rune"]]},
         {"to": "ClockTower", "require": "Clock Tower"},
-        {"to": "Crypt", "require": ["TeleportKey", "Forgotten Sepulcher"]},
+        {"to": "Crypt", "require": ["Teleportation Rune", "Forgotten Sepulcher"]},
     ],
     "AncientTemple": [
-        {"to": "Cavern", "require": ["Giant", "ProgBossRune:2", "Cavern"]},
+        {"to": "Cavern", "require": ["Giant", "Progressive Stem Cell:2", "Cavern"]},
         {"to": "ClockTower", "require": "Clock Tower"},
-        {"to": "Crypt", "require": ["TeleportKey", "Forgotten Sepulcher"]},
+        {"to": "Crypt", "require": ["Teleportation Rune", "Forgotten Sepulcher"]},
     ],
     "Cemetery": [
-        {"to": "Cliff", "require": [["Cultist", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "HomKey"]]},
-        {"to": "Cavern", "require": ["HomKey", "Cavern", "KingsHand"]},
-        {"to": "Crypt", "require": ["TeleportKey", "Forgotten Sepulcher"]},
+        {"to": "Cliff", "require": [["Cultist Outfit", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "Homunculus Rune"]]},
+        {"to": "Cavern", "require": ["Homunculus Rune", "Cavern", "KingsHand"]},
+        {"to": "Crypt", "require": ["Teleportation Rune", "Forgotten Sepulcher"]},
     ],
     "ClockTower": [
         {"to": "TopClockTower", "require": "Clock Room"},
     ],
     "Crypt": [
         {"to": "TopClockTower", "require": "Clock Room"},
-        {"to": "Giant", "require": ["Giant", "ProgBossRune:2", "Guardian's Haven"]},
+        {"to": "Giant", "require": ["Giant", "Progressive Stem Cell:2", "Guardian's Haven"]},
     ],
     "TopClockTower": [
-        {"to": "Shipwreck", "require": ["LighthouseKey", "Infested Shipwreck"]},
+        {"to": "Shipwreck", "require": ["Lighthouse Key", "Infested Shipwreck"]},
         {"to": "Distillery", "require": "Derelict Distillery"},
         {"to": "Castle", "require": "High Peak Castle"},
-        {"to": "DookuCastleHard", "require": ["Death", "Draclua's Castle"]},
+        {"to": "DookuCastleHard", "require": ["Death", "Dracula's Castle"]},
     ],
     "Cavern": [
         {"to": "GardenerStage", "require": ["GardenerBoss", "Mausoleum"]},
         {"to": "Giant", "require": "Guardian's Haven"},
     ],
     "Giant": [
-        {"to": "Shipwreck", "require": ["LighthouseKey", "Infested Shipwreck"]},
+        {"to": "Shipwreck", "require": ["Lighthouse Key", "Infested Shipwreck"]},
         {"to": "Distillery", "require": "Derelict Distillery"},
         {"to": "Castle", "require": "High Peak Castle"},
-        {"to": "DookuCastleHard", "require": ["DookuBeast", "Draclua's Castle"]},
+        {"to": "DookuCastleHard", "require": ["DookuBeast", "Dracula's Castle"]},
         {"to": "Throne", "require": "Throne Room"},
     ],
     "Castle": [
-        {"to": "DookuArena", "require": ["DookuBeast", "Draclua's Castle"]},
+        {"to": "DookuArena", "require": ["DookuBeast", "Dracula's Castle"]},
         {"to": "Throne", "require": "Throne Room"},
     ],
     "Distillery": [
@@ -173,9 +173,9 @@ TRANSITIONS = {
         {"to": "Throne", "require": "Throne Room"},
     ],
     "Throne": [
-        {"to": "Astrolab", "require": ["ProgBossRune:5", "Astrolab"]},
+        {"to": "Astrolab", "require": ["Progressive Stem Cell:5", "Astrolab"]},
         {"to": "Bank", "require": None},
-        {"to": "End", "require": "HomKey"},
+        {"to": "End", "require": "Homunculus Rune"},
     ],
     "Astrolab": [
         {"to": "Observatory", "require": "Observatory"},
@@ -188,22 +188,22 @@ TRANSITIONS = {
     ],
     "SwampHeart": [
         {"to": "StiltVillage", "require": "Stilt Village"},
-        {"to": "Cemetery", "require": ["WallJumpKey", "Graveyard"]},
+        {"to": "Cemetery", "require": ["Spider Rune", "Graveyard"]},
         {"to": "Tumulus", "require": "Fractured Shrines"},
     ],
     "Tumulus": [
-        {"to": "Cliff", "require": [["Cultist", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "HomKey"]]},
+        {"to": "Cliff", "require": [["Cultist Outfit", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "Homunculus Rune"]]},
         {"to": "ClockTower", "require": "Clock Tower"},
-        {"to": "Crypt", "require": ["TeleportKey", "Forgotten Sepulcher"]},
+        {"to": "Crypt", "require": ["Teleportation Rune", "Forgotten Sepulcher"]},
     ],
     "Cliff": [
         {"to": "GardenerStage", "require": "Mausoleum"},
     ],
     "GardenerStage": [
-        {"to": "Shipwreck", "require": ["LighthouseKey", "Infested Shipwreck"]},
+        {"to": "Shipwreck", "require": ["Lighthouse Key", "Infested Shipwreck"]},
         {"to": "Distillery", "require": "Derelict Distillery"},
         {"to": "Castle", "require": "High Peak Castle"},
-        {"to": "DookuCastleHard", "require": ["DookuBeast", "Draclua's Castle"]},
+        {"to": "DookuCastleHard", "require": ["DookuBeast", "Dracula's Castle"]},
     ],
     "Shipwreck": [
         {"to": "Lighthouse", "require": "Lighthouse"},
@@ -215,9 +215,9 @@ TRANSITIONS = {
         {"to": "End", "require": None},
     ],
     "PurpleGarden": [
-        {"to": "PrisonCorrupt", "require": ["WallJumpKey", "DookuBeast", "Corrupted Prison"]},
-        {"to": "DookuCastle", "require": "Draclua's Castle"},
-        {"to": "Ossuary", "require": ["TeleportKey", "DookuBeast", "Ossuary"]},
+        {"to": "PrisonCorrupt", "require": ["Spider Rune", "DookuBeast", "Corrupted Prison"]},
+        {"to": "DookuCastle", "require": "Dracula's Castle"},
+        {"to": "Ossuary", "require": ["Teleportation Rune", "DookuBeast", "Ossuary"]},
     ],
     "DookuCastle": [
         {"to": "Bridge", "require": "DookuBeast"},
@@ -227,9 +227,9 @@ TRANSITIONS = {
         {"to": "DookuArena", "require": "Master's Keep"},
     ],
     "DeathArena": [
-        {"to": "Cemetery", "require": ["WallJumpKey", "Graveyard"]},
+        {"to": "Cemetery", "require": ["Spider Rune", "Graveyard"]},
         {"to": "StiltVillage", "require": "Stilt Village"},
-        {"to": "AncientTemple", "require": ["WallJumpKey", "Slumbering Sanctuary"]},
+        {"to": "AncientTemple", "require": ["Spider Rune", "Slumbering Sanctuary"]},
     ],
     "DookuArena": [
         {"to": "End", "require": None},
@@ -257,6 +257,12 @@ def _check_name(state, player: int, name: str) -> bool:
 def build_rule(requirements, world: "DeadCellsWorld"):
     player = world.player
 
+    def get_stem_cells(state):
+        return (
+            state.count("Progressive Stem Cell", player)
+            + state.count("ProgBossRune", player)
+        )
+
     def check_req(req, state):
         if req is None:
             return True
@@ -266,7 +272,7 @@ def build_rule(requirements, world: "DeadCellsWorld"):
                 key, value = req.split(":", 1)
 
                 if key == "BSC":
-                    return state.count("ProgBossRune", player) >= int(value)
+                    return get_stem_cells(state) >= int(value)
 
                 if key == "Boss":
                     return _has_boss_kill(state, player, value)
@@ -292,12 +298,13 @@ def build_rule(requirements, world: "DeadCellsWorld"):
         return True
 
     return lambda state: check_req(requirements, state)
+
+
 RARITY_BC_REQUIREMENTS = {
-    "Common": 0,
-    "Uncommon": 1,
     "Rare": 2,
     "Legendary": 3,
 }
+
 
 def _inject_rarity_into_sources(loc_data):
     """
@@ -315,17 +322,17 @@ def _inject_rarity_into_sources(loc_data):
 
 def _source_meets_rarity(state, player, source):
     """
-    Only Rare and Legendary require PokebombUnlock.
+    Only Rare and Legendary require Specialist's Showroom.
     """
-    return source.get("rarity") not in ("Rare", "Legendary") or state.has("PokebombUnlock", player)
-
-
-
+    return (
+        source.get("rarity") not in ("Rare", "Legendary")
+        or state.has("Specialist's Showroom", player)
+    )
 
 def create_regions(world: "DeadCellsWorld") -> None:
     world.created_locations = set()
     enabled_dlcs: set = world.enabled_dlcs
-    bc_level: int = world.options.boss_cells.value
+    max_seed_bc: int = world.options.boss_cells.value
     player: int = world.player
     multiworld = world.multiworld
 
@@ -340,8 +347,9 @@ def create_regions(world: "DeadCellsWorld") -> None:
         if dlc and dlc not in enabled_dlcs:
             continue
 
+        # Only skip regions that can never exist in this seed
         min_bc_required = bc_gated_regions.get(name, 0)
-        if bc_level < min_bc_required:
+        if min_bc_required > max_seed_bc:
             continue
 
         region = Region(name, player, multiworld)
@@ -377,20 +385,17 @@ def create_regions(world: "DeadCellsWorld") -> None:
                     sources.append(s2)
             else:
                 sources = [dict(s) for s in grouped_sources]
-
-            min_bc = min(s.get("min_bc", 0) for s in sources)
         else:
             sources = base_sources
-            min_bc = loc_data.get("min_bc", 0)
 
-        if min_bc > bc_level:
-            continue
-
+        # IMPORTANT:
+        # Do NOT filter by current BC progression here.
+        # Only keep sources that are structurally possible in this seed.
         valid_sources = [
             s for s in sources
             if (s.get("dlc", "") == "" or s.get("dlc", "") in enabled_dlcs)
-            and s["biome"] in regions
-            and s.get("min_bc", 0) <= bc_level <= s.get("max_bc", 5)
+            and s.get("biome") in regions
+            and s.get("min_bc", 0) <= max_seed_bc
         ]
 
         if not valid_sources:
@@ -413,7 +418,7 @@ def create_regions(world: "DeadCellsWorld") -> None:
 
                 source_ok = any(
                     (s.get("dlc", "") == "" or s.get("dlc", "") in enabled_dlcs)
-                    and s["biome"] in regions
+                    and s.get("biome") in regions
                     and state.can_reach(s["biome"], "Region", player)
                     and s.get("min_bc", 0) <= bc <= s.get("max_bc", 5)
                     and _source_meets_rarity(state, player, s)
