@@ -118,7 +118,7 @@ namespace DeadCellsArchipelago {
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck("Rune_" + runeId, runeId, "Rune:");
+                ARCHIPELAGO.SendCheck(runeId, runeId, "Rune:");
             }
             else
             {
@@ -143,7 +143,7 @@ namespace DeadCellsArchipelago {
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck("BSC_" + bscId, bscId, "BSC:");
+                ARCHIPELAGO.SendCheck(bscId, bscId, "BSC:");
             }
             else
             {

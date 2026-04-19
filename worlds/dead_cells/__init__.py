@@ -296,6 +296,7 @@ class DeadCellsWorld(World):
             "Progressive Stem Cell",
             "Progressive Flask",
             "Progressive Gold Reserves",
+            "Progressive Recycling",
     }
         progression_list = [name for name in progression_list if name not in custom_progressives]
 
@@ -308,6 +309,9 @@ class DeadCellsWorld(World):
 
     # Progressive Gold Reserves: always 5 total
         itempool += ["Progressive Gold Reserves"] * 5
+        
+    # Progressive Recycling: always 2 total
+        itempool += ["Progressive Recycling"] * 2
 
     # Add remaining progression items once each
         itempool += progression_list

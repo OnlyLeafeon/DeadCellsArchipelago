@@ -34,20 +34,20 @@ ALL_REGIONS = [
 ]
 
 BOSS_LOCATION = {
-    "Behemoth":       "Boss_Behemoth",
-    "Beholder":       "Boss_Beholder",
-    "TimeKeeper":     "Boss_TimeKeeper",
-    "KingsHand":      "Boss_KingsHand",
-    "Giant":          "Boss_Giant",
-    "Collector":      "Boss_Collector",
-    "MamaTick":       "Boss_MamaTick",
-    "GardenerBoss":   "Boss_GardenerBoss",
-    "AmazonSurvival": "Boss_AmazonSurvival",
-    "AmazonTactic":   "Boss_AmazonTactic",
-    "AmazonBrutal":   "Boss_AmazonBrutal",
-    "Queen":          "Boss_Queen",
-    "Death":          "Boss_Death",
-    "DookuBeast":     "Boss_DookuBeast",
+    "Behemoth":       "The Concierge",
+    "Beholder":       "Conjunctivius",
+    "TimeKeeper":     "The Time Keeper",
+    "KingsHand":      "The Hand of the King",
+    "Giant":          "The Giant",
+    "Collector":      "The Collector",
+    "MamaTick":       "Mama Tick",
+    "GardenerBoss":   "Scarecrow",
+    "AmazonSurvival": "Calliope",
+    "AmazonTactic":   "Euterpe",
+    "AmazonBrutal":   "Kleio",
+    "Queen":          "The Queen",
+    "Death":          "Death",
+    "DookuBeast":     "Dracula",
 }
 
 REGION_DLC = {
@@ -91,7 +91,6 @@ TRANSITIONS = {
         {"to": "Ossuary", "require": ["Vine Rune", "Teleportation Rune", "Ossuary"]},
         {"to": "PrisonRoof", "require": "Vine Rune"},
         {"to": "PrisonDepths", "require": ["Spider Rune", "Vine Rune", "Prison Depths"]},
-        {"to": "Swamp", "require": ["Teleportation Rune", "Morass of the Banished"]},
     ],
     "SewerShort": [
         {"to": "PrisonCorrupt", "require": ["Spider Rune", "Corrupted Prison"]},
@@ -102,7 +101,6 @@ TRANSITIONS = {
     "PrisonDepths": [
         {"to": "Ossuary", "require": "Ossuary"},
         {"to": "SewerDepths", "require": ["Progressive Stem Cell", "Ancient Sewers"]},
-        {"to": "Swamp", "require": ["Teleportation Rune", "Morass of the Banished"]},
     ],
     "PrisonCorrupt": [
         {"to": "SewerDepths", "require": "Ancient Sewers"},
@@ -130,7 +128,6 @@ TRANSITIONS = {
         {"to": "Cemetery", "require": ["Spider Rune", "Graveyard"]},
     ],
     "StiltVillage": [
-        {"to": "Cliff", "require": [["Cultist Outfit", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "Homunculus Rune"]]},
         {"to": "ClockTower", "require": "Clock Tower"},
         {"to": "Crypt", "require": ["Teleportation Rune", "Forgotten Sepulcher"]},
     ],
@@ -196,7 +193,6 @@ TRANSITIONS = {
         {"to": "Tumulus", "require": "Fractured Shrines"},
     ],
     "Tumulus": [
-        {"to": "Cliff", "require": [["Cultist Outfit", "Undying Shores"], ["Undying Shores", "Region:Tumulus", "Homunculus Rune"]]},
         {"to": "ClockTower", "require": "Clock Tower"},
         {"to": "Crypt", "require": ["Teleportation Rune", "Forgotten Sepulcher"]},
     ],

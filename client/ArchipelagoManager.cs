@@ -8,6 +8,7 @@ using Serilog;
 using static DeadCellsArchipelago.ItemManager;
 using static DeadCellsArchipelago.ItemQueue;
 using static DeadCellsArchipelago.HeroManager;
+using static DeadCellsArchipelago.Translator;
 
 namespace DeadCellsArchipelago
 {
@@ -109,6 +110,11 @@ namespace DeadCellsArchipelago
             
             try
             {
+                if (IdToNameKeyExist(locationName))
+                {
+                    locationName = GetName(locationName);
+                }
+
                 // Get localization id from name
                 var locationId = _session.Locations.GetLocationIdFromName("Dead Cells", locationName);
                 

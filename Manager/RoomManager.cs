@@ -67,15 +67,27 @@ namespace DeadCellsArchipelago {
             Log.Warning($"=== start last level {lastLevel} ===");
             if(lastLevel != null && SAVED_DATA != null && !SAVED_DATA.IsCheckSent($"{ldat.id}_Exit"))
             {
-                   SendBiomeCheck(lastLevel + "_Exit");
-                   Log.Warning("=== send end ===");
+                var locationName = lastLevel;
+                if (IdToNameKeyExist(locationName))
+                {
+                    locationName = GetName(locationName);
+                }
+
+                SendBiomeCheck(locationName + " Exit");
+                Log.Warning("=== send end ===");
             }
 
             if(ldat.id.ToString().Substring(0, 2) != "T_")
             {
                 if(SAVED_DATA != null && !SAVED_DATA.IsCheckSent($"{ldat.id}_Exit"))
                 {
-                    SendBiomeCheck(ldat.id.ToString() + "_Enter");
+                    var locationName = ldat.id.ToString();
+                    if (IdToNameKeyExist(locationName))
+                    {
+                        locationName = GetName(locationName);
+                    }
+
+                    SendBiomeCheck(locationName + " Enter");
                     Log.Warning("=== send start ===");
                 }
                 lastLevel = ldat.id.ToString();
@@ -146,7 +158,22 @@ namespace DeadCellsArchipelago {
 
         public static bool ExistKey(string biomeId)
         {
-            return IdToNameKeyExist(biomeId);
+            return IdToNameKeyExist(biomeId) && !Free(biomeId);
+        }
+
+        public static bool Free(string biomeId)
+        {
+            switch (biomeId)
+            {
+                case "PrisonStart":
+                case "PrisonCourtyard":
+                case "SewerShort":
+                case "PrisonRoof":
+                case "Bridge":
+                case "DookuCastleHard":
+                    return true;
+            }
+            return false;
         }
     }
 }

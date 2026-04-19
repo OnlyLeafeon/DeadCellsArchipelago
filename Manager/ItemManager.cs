@@ -262,6 +262,7 @@ namespace DeadCellsArchipelago {
         //the boolean returned here is for saving or not the item in local data
         public static bool GiveItemFromArchipelago(string itemName)
         {
+            Log.Error($"+++++++++++++++++++++++++++++ {itemName}");
             if (ITEM_META_MANAGER != null) {
                 if(IsItemProgressive(itemName))
                 {
@@ -286,7 +287,7 @@ namespace DeadCellsArchipelago {
                         RuneManager.ActivateMinimapTracking(itemName);
                         LogItem(itemName);
                         return true;
-                    case "ProgBossRune":
+                    case "BossRune":
                         string? unlockedName = HandleBossRune();
                         if(unlockedName != null)
                         {
@@ -531,7 +532,7 @@ namespace DeadCellsArchipelago {
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck("Item_" + itemId, itemId, "Item:");
+                ARCHIPELAGO.SendCheck(itemId, itemId, "Item:");
             }
             else
             {
@@ -620,17 +621,9 @@ namespace DeadCellsArchipelago {
         {
             switch (itemName)
             {
-                case "Flask1":
-                case "Flask2":
-                case "Flask3":
-                case "Flask4":
-                case "Money1":
-                case "Money2":
-                case "Money3":
-                case "Money4":
-                case "Money5":
-                case "Recycling1":
-                case "Recycling2":
+                case "Flask":
+                case "Money":
+                case "Recycling":
                     return true;
             }
             return false;

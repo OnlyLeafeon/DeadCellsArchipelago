@@ -55,7 +55,7 @@ namespace DeadCellsArchipelago {
         {
             if (ARCHIPELAGO != null)
             {
-                ARCHIPELAGO.SendCheck("Blueprint_" + blueprintId, blueprintId, "Blueprint:");
+                ARCHIPELAGO.SendCheck(blueprintId, blueprintId, "Blueprint:");
             }
             else
             {

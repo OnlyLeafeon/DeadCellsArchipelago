@@ -510,59 +510,59 @@ def set_rules(world):
 LOCATION_RULES = [
 
     # ── Gameplay items ────────────────────────────────────────────────────────
-    ("Blueprint_P_Disengage", _has("Homunculus Rune")),
-    ("Money5",  _has("Homunculus Rune")),
-    ("Blueprint_P_AmmoOnHit", _has("Spider Rune")),
+    ("Disengagement", _has("Homunculus Rune")),
+    ("Gold Reserves V",  _has("Homunculus Rune")),
+    ("Ripper", _has("Spider Rune")),
 
-    ("Blueprint_SpeedBlade",    _has("Challenger's Rune")),
-    ("Blueprint_DamageAura",    _has("Challenger's Rune")),
-    ("Blueprint_DashSword",     _has("Challenger's Rune")),
+    ("Swift Sword",    _has("Challenger's Rune")),
+    ("Lacerating Aura",    _has("Challenger's Rune")),
+    ("Meat Skewer",     _has("Challenger's Rune")),
 
 
     # ── Lighthouse Key logic ─────────────────────────────────────────────────
-    ("Blueprint_LighthouseKey", lambda world: (
+    ("Lighthouse Key", lambda world: (
         lambda state: state.can_reach("SewerShort", "Region", world.player)
     )),
 
 
     # ── PrisonCourtyard mid-biome gate (Vine Rune) ────────────────────────────
-    ("Blueprint_BackBlink", _has("Vine Rune")),
-    ("Blueprint_BumpBoots", _has("Vine Rune")),
-    ("Blueprint_DamageBuff", _has("Vine Rune")),
-    ("Blueprint_Decoy", _has("Vine Rune")),
-    ("Blueprint_ExplosiveGrenade", _has("Vine Rune")),
-    ("Blueprint_GroundSaw", _has("Vine Rune")),
-    ("Blueprint_KnivesCircle", _has("Vine Rune")),
-    ("Blueprint_LowHealth", _has("Vine Rune")),
-    ("Blueprint_MultiCrossBow", _has("Vine Rune")),
-    ("Blueprint_MultiKickBoots", _has("Vine Rune")),
-    ("Blueprint_OilSword", _has("Vine Rune")),
-    ("Blueprint_P_DeathShield", _has("Vine Rune")),
-    ("Blueprint_PrisonerAphrodite", _has("Vine Rune")),
-    ("Blueprint_PrisonerBlack", _has("Vine Rune")),
-    ("Blueprint_PrisonerKamikaze", _has("Vine Rune")),
-    ("Blueprint_PrisonerNeon", _has("Vine Rune")),
-    ("Blueprint_PrisonerWarrior", _has("Vine Rune")),
-    ("Blueprint_Shockwave", _has("Vine Rune")),
-    ("Blueprint_LongBow", _has("Vine Rune")),
+    ("Phaser", _has("Vine Rune")),
+    ("Spartan Sandals", _has("Vine Rune")),
+    ("Corrupted Power", _has("Vine Rune")),
+    ("Explosive Decoy", _has("Vine Rune")),
+    ("Powerful Gernade", _has("Vine Rune")),
+    ("Cleaver", _has("Vine Rune")),
+    ("Knife Dance", _has("Vine Rune")),
+    ("Execution", _has("Vine Rune")),
+    ("Repeater Crossbow", _has("Vine Rune")),
+    ("Hayabusa Boots", _has("Vine Rune")),
+    ("Oiled Sword", _has("Vine Rune")),
+    ("Berserker", _has("Vine Rune")),
+    ("Aphrodite Outfit", _has("Vine Rune")),
+    ("Black Outfit", _has("Vine Rune")),
+    ("Kamikaze Outfit", _has("Vine Rune")),
+    ("Neon Outfit", _has("Vine Rune")),
+    ("Warrior Outfit", _has("Vine Rune")),
+    ("Wave of Denial", _has("Vine Rune")),
+    ("Marksman's Bow", _has("Vine Rune")),
 
     (
-        "Blueprint_ExplosiveCrossBow",
+        "Explosive Crossbow",
         _has_all_any(
             ["Vine Rune", "Ram Rune"],
             any_of=["Spider Rune", "Homunculus Rune"]
         )
     ),
 
-    ("PrisonCourtyard_Exit", _has("Vine Rune")),
+    ("Promenade of the Condemned Exit", _has("Vine Rune")),
 
 
     # ── Collab skins ─────────────────────────────────────────────────────────
-    ("Blueprint_HollowKnight", _has("Pure Nail")),
-    ("Blueprint_Blasphemous", _has("Face Flask")),
+    ("Hollow Knight Outfit", _has("Pure Nail")),
+    ("Blasphemous Outfit", _has("Face Flask")),
 
     (
-    "Blueprint_Guacamelee",
+    "Guacamelee Outfit",
     lambda world: (
         lambda state:
             state.can_reach("Crypt", "Region", world.player)
@@ -575,48 +575,48 @@ LOCATION_RULES = [
     )
 ),
     (
-        "Blueprint_HyperLightDrifter",
-        _has_all("Hard Light Sword", "Hyper Light Drifter Outfit")
+        "The Magician's Outfit",
+        _has_all("Hard Light Sword", "Drifter Outfit")
     ),
 
     (
-        "Blueprint_CurseofTheDeadGods",
+        "Curse of the Dead Gods Outfit",
         lambda world: (
             lambda state: any(
                 state.can_reach_location(loc, world.player)
                 for loc in [
-                    "Throne_Exit",
-                    "QueenArena_Exit",
-                    "DookuArena_Exit"
+                    "Throne Room Exit",
+                    "Crown Exit",
+                    "Master's Keep Exit",
                 ]
             )
         )
     ),
 
     (
-        "Blueprint_Terraria",
+        "Familiar Outfit",
         lambda world: (
             lambda state:
                 state.has("Backpack", world.player)
-                and state.can_reach_location("Boss_KingsHand", world.player)
+                and state.can_reach_location("The Hand of the King", world.player)
         )
     ),
 
-    ("Blueprint_HotlineMiamiChicken", _has("Baseball Bat")),
-    ("Blueprint_KatanaZero", _has("Hattori's Katana")),
-    ("Blueprint_ShovelKnight", _has("Shovel")),
+    ("Hotline Miami Outfit", _has("Baseball Bat")),
+    ("Katana ZERO Outfit", _has("Hattori's Katana")),
+    ("Shovel Knight Outfit", _has("Shovel")),
 
 
     # ── Scissor / Comb skin count gates ──────────────────────────────────────
     (
-        "Blueprint_Scissor",
+        "Sewing Scissors",
         lambda world: lambda state:
             _skin_count(16)(world)(state)
             or state.can_reach("Throne", "Region", world.player)
     ),
 
     (
-    "Blueprint_Comb",
+    "Giant Comb",
     lambda world: (
         lambda state:
             _skin_count(51)(world)(state)
@@ -628,43 +628,41 @@ LOCATION_RULES = [
 ),
 
     # ── King outfit chain ────────────────────────────────────────────────────
-    ("Blueprint_KingDefault", _boss_killed("Boss_Collector")),
-    ("Blueprint_KingWhite", _has("King Outfit")),
+    ("King Outfit", _boss_killed("The Collector")),
+    ("White King Outfit", _has("King Outfit")),
 
 
     # ── TickSacrifice ─────────────────────────────────────────────────────────
-    ("Blueprint_TickSacrifice", _has("Mushroom Boi!")),
+    ("Sacrificial Tick Outfit", _has("Mushroom Boi!")),
 
 
     # ── Specialist showroom unlock ───────────────────────────────────────────
-    ("Blueprint_PrisonerGold", _has("Specialist's Showroom")),
+    ("Golden Outfit", _has("Specialist's Showroom")),
 
-    ("Blueprint_P_Wishes", _boss_rush_trials_3_4()),
+    ("Wish", _boss_rush_trials_3_4()),
 
 
     # ── Heads ────────────────────────────────────────────────────────────────
-    ("Item_StaphyHead", _has("Leghugger")),
+    ("Staphy Head", _has("Leghugger")),
 
-    ("Item_MushroomBoi", _has("Mushroom Boi!")),
+    ("Mushroom Boi Head", _has("Mushroom Boi!")),
 
-    ("Item_BlobbyFlameMagma",
-        _boss_killed("Boss_KingsHand")
+    ("Magma Blobby Flame",
+        _boss_killed("The Hand of the King")
     ),
 
-    ("Item_BlowTorchRed", _has("Pyrotechnics")),
+    ("Red Blowtorch", _has("Pyrotechnics")),
 
-    ("Item_BossCellHead", _bsc(5)),
+    ("Boss Cell Head", _bsc(5)),
 
-    ("Item_Guillain", _boss_rush_trials_1_2()),
+    ("Guillain Head", _boss_rush_trials_1_2()),
 
-    ("Blueprint_Bobby", _has("Progressive Stem Cell")),
-
-    ("Item_GlitchyHeadDeepSpace",
+    ("Deep Space Glitchy Head",
      lambda world: lambda state:
         _head_count(35)(world)(state) 
         or state.can_reach("Throne", "Region", world.player)),
 
-    ("Item_BlackHoleRed",
+    ("Red Black Hole",
     lambda world: lambda state: 
         _head_count(7)(world)(state)
         or (
@@ -672,7 +670,7 @@ LOCATION_RULES = [
                 and get_bc_level(state, world.player) >= 5
             )
     ),
-    ("Item_Pecheur",
+    ("Pecheur Head",
     lambda world: lambda state: 
         _head_count(40)(world)(state)
         or (
@@ -681,7 +679,7 @@ LOCATION_RULES = [
             )),
 
     (
-    "Item_BlackHoleBlue",
+    "Blue Black Hole",
     lambda world: (
         lambda state:
             state.has("Vine Rune", world.player)
@@ -705,7 +703,7 @@ LOCATION_RULES = [
     )
     ),
     (
-    "Item_BlackHoleGreen",
+    "Green Black Hole",
     lambda world: (
         lambda state:
             sum(
